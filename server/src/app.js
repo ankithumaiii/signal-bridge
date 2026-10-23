@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -11,6 +14,10 @@ import sosRoutes from './routes/sosRoutes.js';
 import hazardRoutes from './routes/hazardRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
 const app = express();
 
@@ -59,15 +66,6 @@ app.use('/api/*', (req, res) => {
     message: `API endpoint '${req.originalUrl}' not found.`
   });
 });
-
-// Serve frontend build if dist folder exists
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
 if (fs.existsSync(clientDistPath)) {
   app.use(express.static(clientDistPath));

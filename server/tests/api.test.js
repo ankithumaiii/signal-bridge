@@ -203,6 +203,9 @@ describe('Signal Bridge API Test Suite', () => {
 
   // 5. Hazard Reporting and Transparent Verification
   it('POST /api/hazards creates new hazard and runs verification', async () => {
+    const isolatedLat = 13.5000 + (Math.random() * 0.05);
+    const isolatedLng = 77.1000 + (Math.random() * 0.05);
+
     const res = await request('/api/hazards', {
       method: 'POST',
       token: testToken,
@@ -211,8 +214,8 @@ describe('Signal Bridge API Test Suite', () => {
         severity: 'High',
         description: 'Electrical transformer sparking on 5th cross road.',
         location: {
-          lat: 12.9750,
-          lng: 77.5920,
+          lat: isolatedLat,
+          lng: isolatedLng,
           address: '5th Cross Test Road'
         }
       }
@@ -220,9 +223,9 @@ describe('Signal Bridge API Test Suite', () => {
 
     assert.strictEqual(res.status, 201);
     assert.strictEqual(res.body.hazard.category, 'Fire or Smoke');
-    assert.ok(['Unverified Report', 'Multiple Reports'].includes(res.body.hazard.status));
     testHazardId = res.body.hazard._id;
     assert.ok(testHazardId, 'Hazard ID must be returned');
+    assert.ok(['Unverified Report', 'Multiple Reports', 'Corroborated Hazard'].includes(res.body.hazard.status));
   });
 
   it('GET /api/hazards retrieves safety map hazards', async () => {

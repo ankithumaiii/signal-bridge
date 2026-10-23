@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { Hand, Lock } from 'lucide-react';
 
 export const HazardMap = ({
   hazards = [],
@@ -16,11 +17,16 @@ export const HazardMap = ({
   const markersLayerRef = useRef(null);
   const userMarkerRef = useRef(null);
   const accuracyCircleRef = useRef(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [mapPanActive, setMapPanActive] = useState(false);
 
   // Initialize map once
   useEffect(() => {
     if (!mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
+
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768;
+    setIsTouchDevice(hasTouch);
 
     const initialCenter = userLocation?.lat && userLocation?.lng
       ? [userLocation.lat, userLocation.lng]
@@ -31,8 +37,14 @@ export const HazardMap = ({
     const map = L.map(mapContainerRef.current, {
       center: initialCenter,
       zoom: initialZoom,
-      zoomControl: true
+      zoomControl: true,
+      scrollWheelZoom: false,
+      dragging: !hasTouch
     });
+
+    if (hasTouch && mapContainerRef.current) {
+      mapContainerRef.current.style.touchAction = 'pan-y';
+    }
 
     // High-reliability Carto Voyager tiles (free, fast, beautiful, eliminates OSM 403 block)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -76,6 +88,22 @@ export const HazardMap = ({
       mapInstanceRef.current = null;
     };
   }, []);
+
+  // Update dragging state when mapPanActive changes on mobile
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    if (mapPanActive) {
+      mapInstanceRef.current.dragging.enable();
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.touchAction = 'none';
+      }
+    } else if (isTouchDevice) {
+      mapInstanceRef.current.dragging.disable();
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.touchAction = 'pan-y';
+      }
+    }
+  }, [mapPanActive, isTouchDevice]);
 
   // Update User Location Marker & automatically fly to device's live coordinates
   useEffect(() => {
@@ -259,6 +287,47 @@ export const HazardMap = ({
 
   return (
     <div style={{ position: 'relative', width: '100%', height }}>
+      {/* Mobile/Touch Pan Toggle Button so page scrolling isn't trapped */}
+      {isTouchDevice && (
+        <button
+          type="button"
+          onClick={() => setMapPanActive(!mapPanActive)}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            zIndex: 1000,
+            background: mapPanActive ? 'var(--color-ink)' : 'rgba(255, 255, 255, 0.95)',
+            color: mapPanActive ? '#FFFFFF' : 'var(--color-ink)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-pill)',
+            padding: '0.4rem 0.75rem',
+            fontSize: '0.75rem',
+            fontWeight: 650,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.16)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            cursor: 'pointer',
+            backdropFilter: 'blur(4px)',
+            transition: 'all 0.15s ease'
+          }}
+          aria-label={mapPanActive ? "Lock map to scroll page" : "Tap to pan map"}
+        >
+          {mapPanActive ? (
+            <>
+              <Lock size={12} color="#FFFFFF" />
+              <span>Lock Map (Scroll Page)</span>
+            </>
+          ) : (
+            <>
+              <Hand size={12} color="var(--color-accent)" />
+              <span>Tap to Pan Map</span>
+            </>
+          )}
+        </button>
+      )}
+
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%', borderRadius: 'var(--radius-lg)' }} />
 
       {/* Floating Re-center to Live Device Button */}

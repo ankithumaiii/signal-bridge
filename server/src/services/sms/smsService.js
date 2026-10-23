@@ -22,15 +22,89 @@ export class SMSService {
   }
 
   /**
-   * Format SMS text for emergency alert
+   * Format and normalize location coordinates supporting both {lat, lng} and {latitude, longitude}
+   * Inspired by geolocation alert concepts (chazdj/Emergency-Communication-System), providing
+   * 5-decimal precision formatting (~1.1m accuracy) and universal 1-tap navigation link.
+   */
+  formatLocation(location) {
+    if (!location) {
+      return { hasCoords: false, coordsStr: 'GPS unavailable', mapUrl: '', googleMapsUrl: '' };
+    }
+
+    const rawLat = location.lat !== undefined ? location.lat : location.latitude;
+    const rawLng = location.lng !== undefined ? location.lng : location.longitude;
+    const lat = typeof rawLat === 'number' ? rawLat : parseFloat(rawLat);
+    const lng = typeof rawLng === 'number' ? rawLng : parseFloat(rawLng);
+
+    const hasCoords = !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+
+    if (!hasCoords) {
+      return { hasCoords: false, coordsStr: 'GPS unavailable', mapUrl: '', googleMapsUrl: '' };
+    }
+
+    const latFixed = lat.toFixed(5);
+    const lngFixed = lng.toFixed(5);
+    const coordsStr = `${latFixed}, ${lngFixed}`;
+    const googleMapsUrl = `https://maps.google.com/?q=${latFixed},${lngFixed}`;
+    const osmUrl = `https://osm.org/?mlat=${latFixed}&mlon=${lngFixed}`;
+
+    return {
+      hasCoords: true,
+      lat,
+      lng,
+      coordsStr,
+      googleMapsUrl,
+      osmUrl
+    };
+  }
+
+  /**
+   * Format SMS text for emergency alert.
+   * Combines user identity, emergency category, optional user incident note/details,
+   * coordinates, clickable map link, and 112 guidance.
    */
   formatSMSMessage({ incident, user, recipientName }) {
-    const loc = incident.location;
-    const hasCoords = loc && loc.lat !== null && loc.lng !== null;
-    const coordsStr = hasCoords ? `${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}` : 'GPS unavailable';
-    const mapStr = hasCoords ? `Map: https://osm.org/?mlat=${loc.lat}&mlon=${loc.lng}` : '';
+    const locInfo = this.formatLocation(incident?.location);
+    const userName = user?.name || 'Signal Bridge User';
+    const category = incident?.category || 'Emergency Alert';
 
-    return `EMERGENCY ALERT from ${user?.name || 'Signal Bridge User'}: ${incident.category}. Location: ${coordsStr}. ${mapStr} Call 112 if in danger. [Ref: ${incident.incidentNumber}]`.trim();
+    // Safely incorporate user emergency note if provided and distinct from default stub
+    const rawDetails = incident?.description || incident?.message;
+    const detailsPart = rawDetails && rawDetails !== 'Emergency SOS triggered' && rawDetails.trim().length > 0
+      ? ` Note: "${rawDetails.trim().substring(0, 80)}${rawDetails.length > 80 ? '…' : ''}".`
+      : '';
+
+    const mapStr = locInfo.hasCoords ? ` Map: ${locInfo.googleMapsUrl}` : '';
+
+    return `EMERGENCY ALERT from ${userName}: ${category}.${detailsPart} Location: ${locInfo.coordsStr}.${mapStr} Call 112 if in danger. [Ref: ${incident?.incidentNumber || 'SOS'}]`.trim();
+  }
+
+  /**
+   * Helper to summarize delivery stats across recipient records
+   */
+  getNotificationSummary(recipients = []) {
+    const total = recipients.length;
+    let simulated = 0;
+    let accepted = 0;
+    let failed = 0;
+    let acknowledged = 0;
+
+    for (const r of recipients) {
+      if (r.status === 'simulated' || r.isDemoSimulated) simulated++;
+      else if (r.status === 'accepted_by_provider' || r.status === 'delivered') accepted++;
+      else if (r.status === 'failed') failed++;
+
+      if (r.status === 'acknowledged' || r.acknowledgedAt) acknowledged++;
+    }
+
+    return {
+      total,
+      simulated,
+      accepted,
+      failed,
+      acknowledged,
+      allProcessed: total > 0 && (simulated + accepted + failed === total)
+    };
   }
 
   /**
@@ -60,6 +134,14 @@ export class SMSService {
         isDemoSimulated: false,
         attempts: 0
       };
+
+      // Input validation for destination phone
+      if (!contact.phone || typeof contact.phone !== 'string' || contact.phone.trim().length < 6) {
+        recipientRecord.status = 'failed';
+        recipientRecord.providerError = 'Invalid or missing phone number for emergency contact.';
+        recipientResults.push(recipientRecord);
+        continue;
+      }
 
       // 1. Strict DEMO MODE isolation check
       if (config.demoMode) {

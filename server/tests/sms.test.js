@@ -249,4 +249,59 @@ describe('Signal Bridge SMS & Dispatch Isolation Test Suite', () => {
       config.demoMode = origDemo;
     }
   });
+
+  // 10. Geolocation normalization supports { lat, lng } and { latitude, longitude }
+  it('formatLocation normalizes both lat/lng and latitude/longitude with universal Google Maps link', () => {
+    const loc1 = smsService.formatLocation({ lat: 12.9716, lng: 77.5946 });
+    assert.strictEqual(loc1.hasCoords, true);
+    assert.strictEqual(loc1.coordsStr, '12.97160, 77.59460');
+    assert.strictEqual(loc1.googleMapsUrl, 'https://maps.google.com/?q=12.97160,77.59460');
+
+    // Test with latitude/longitude (reference repository convention)
+    const loc2 = smsService.formatLocation({ latitude: 13.0827, longitude: 80.2707 });
+    assert.strictEqual(loc2.hasCoords, true);
+    assert.strictEqual(loc2.coordsStr, '13.08270, 80.27070');
+    assert.strictEqual(loc2.googleMapsUrl, 'https://maps.google.com/?q=13.08270,80.27070');
+
+    // Test invalid / null location
+    const loc3 = smsService.formatLocation(null);
+    assert.strictEqual(loc3.hasCoords, false);
+    assert.strictEqual(loc3.coordsStr, 'GPS unavailable');
+  });
+
+  // 11. SMS composition incorporates emergency details and direct navigation link
+  it('formatSMSMessage includes emergency note details and universal map link', () => {
+    const msg = smsService.formatSMSMessage({
+      incident: {
+        incidentNumber: 'INC-2026-TEST',
+        category: 'Fire Emergency',
+        description: 'Smoke on 2nd floor, stairwell blocked',
+        location: { lat: 12.9716, lng: 77.5946 }
+      },
+      user: { name: 'Rohan Verma' },
+      recipientName: 'Aarav'
+    });
+
+    assert.ok(msg.includes('EMERGENCY ALERT from Rohan Verma: Fire Emergency.'));
+    assert.ok(msg.includes('Note: "Smoke on 2nd floor, stairwell blocked".'));
+    assert.ok(msg.includes('Location: 12.97160, 77.59460.'));
+    assert.ok(msg.includes('Map: https://maps.google.com/?q=12.97160,77.59460'));
+    assert.ok(msg.includes('Call 112 if in danger. [Ref: INC-2026-TEST]'));
+  });
+
+  // 12. getNotificationSummary aggregates delivery states
+  it('getNotificationSummary computes delivery breakdown metrics', () => {
+    const summary = smsService.getNotificationSummary([
+      { status: 'simulated', isDemoSimulated: true },
+      { status: 'accepted_by_provider' },
+      { status: 'failed' },
+      { status: 'acknowledged', acknowledgedAt: new Date() }
+    ]);
+
+    assert.strictEqual(summary.total, 4);
+    assert.strictEqual(summary.simulated, 1);
+    assert.strictEqual(summary.accepted, 1);
+    assert.strictEqual(summary.failed, 1);
+    assert.strictEqual(summary.acknowledged, 1);
+  });
 });

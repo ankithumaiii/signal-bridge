@@ -304,11 +304,14 @@ export const AppLayout = () => {
         {/* Mobile bottom nav */}
         <nav className="mobile-bottom-nav" style={{
           position: 'fixed', bottom: 0, left: 0, right: 0,
-          height: 'var(--bottom-nav-height)',
+          height: 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px))',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           background: 'var(--color-surface)',
           borderTop: '1px solid var(--color-border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-          zIndex: 1000, padding: '0 0.25rem'
+          zIndex: 1000, paddingLeft: '0.25rem', paddingRight: '0.25rem',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
         }}>
           <NavLink to="/app" end style={({ isActive }) => ({
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem',

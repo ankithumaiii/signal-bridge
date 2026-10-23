@@ -1,8 +1,9 @@
 # Signal Bridge — Offline-Aware Emergency Safety & SOS Platform
 
-[![Test Suite](https://img.shields.io/badge/Tests-17%20Passed-10B981?style=flat-square)](file:///c:/Users/Ankit%20kumar/OneDrive/Desktop/Hackx/server/tests/api.test.js)
-[![Status](https://img.shields.io/badge/MVP-Production--Ready-3A86FF?style=flat-square)](#)
-[![Emergency 112](https://img.shields.io/badge/ERSS%20112-Integrated-E63946?style=flat-square)](#)
+[![Test Suite](https://img.shields.io/badge/Tests-17%20Passed-10B981?style=flat-square)](https://github.com/ankithumaiii/signal-bridge)
+[![Status](https://img.shields.io/badge/MVP-Production--Ready-3A86FF?style=flat-square)](https://github.com/ankithumaiii/signal-bridge)
+[![Emergency 112](https://img.shields.io/badge/ERSS%20112-Integrated-E63946?style=flat-square)](https://github.com/ankithumaiii/signal-bridge)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ankithumaiii/signal-bridge)
 
 Signal Bridge is an offline-aware personal emergency safety, family SOS alert, and danger-zone hazard awareness platform designed for rapid crisis response, urban disasters, and day-to-day personal safety.
 

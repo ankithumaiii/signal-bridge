@@ -18,6 +18,7 @@ import { FamilyPage } from './pages/FamilyPage.jsx';
 import { MessagesPage } from './pages/MessagesPage.jsx';
 import { HistoryPage } from './pages/HistoryPage.jsx';
 import { SettingsPage } from './pages/SettingsPage.jsx';
+import { SubscriptionPage } from './pages/SubscriptionPage.jsx';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="history" element={<HistoryPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="subscription" element={<SubscriptionPage />} />
               </Route>
 
               {/* Catch all fallback */}

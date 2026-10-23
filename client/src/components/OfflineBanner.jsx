@@ -25,7 +25,7 @@ export const OfflineBanner = () => {
 
   if (queueCount > 0) {
     return (
-      <div className="system-banner" style={{ background: '#1E3A8A', color: '#DBEAFE', borderBottom: '1px solid #2563EB' }}>
+      <div className="system-banner" style={{ background: '#EAF3ED', color: '#1B6A46', borderBottom: '1px solid #C8E2D4' }}>
         <RefreshCw size={15} className={isFlushing ? 'spin' : ''} />
         <span>
           Reconnected. <strong>{queueCount}</strong> pending item(s) ready to synchronize with Signal Bridge server.

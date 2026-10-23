@@ -134,7 +134,10 @@ export const deleteContact = async (req, res, next) => {
 export const sendCheckIn = async (req, res, next) => {
   try {
     const { status, message, location } = req.body;
-    if (!['safe', 'need_help'].includes(status)) {
+    let normalizedStatus = (status || '').toString().toLowerCase().trim();
+    if (normalizedStatus === 'needhelp') normalizedStatus = 'need_help';
+
+    if (!['safe', 'need_help'].includes(normalizedStatus)) {
       return res.status(400).json({ success: false, message: 'Status must be either "safe" or "need_help"' });
     }
 
@@ -143,8 +146,8 @@ export const sendCheckIn = async (req, res, next) => {
       { userId: req.user._id },
       {
         lastCheckInReceived: {
-          type: status,
-          message: message || (status === 'safe' ? "I am safe and secure." : "I need assistance."),
+          type: normalizedStatus,
+          message: message || (normalizedStatus === 'safe' ? "I am safe and secure." : "I need assistance."),
           timestamp: new Date()
         }
       }
@@ -155,8 +158,8 @@ export const sendCheckIn = async (req, res, next) => {
       { contactUserId: req.user._id },
       {
         lastCheckInReceived: {
-          type: status,
-          message: message || (status === 'safe' ? `${req.user.name} checked in: Safe.` : `${req.user.name} checked in: Needs help.`),
+          type: normalizedStatus,
+          message: message || (normalizedStatus === 'safe' ? `${req.user.name} checked in: Safe.` : `${req.user.name} checked in: Needs help.`),
           timestamp: new Date()
         }
       }

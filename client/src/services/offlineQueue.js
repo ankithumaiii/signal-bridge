@@ -65,6 +65,10 @@ export const processOfflineQueue = async (onItemProcessed) => {
         await api.createSOS(item.payload);
         processed++;
         if (onItemProcessed) onItemProcessed(item, true);
+      } else if (item.type === 'hazard_report') {
+        await api.createHazard(item.payload);
+        processed++;
+        if (onItemProcessed) onItemProcessed(item, true);
       } else {
         remaining.push(item);
       }

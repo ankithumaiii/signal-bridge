@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldAlert, User, Mail, Lock, Phone, Heart, AlertCircle, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Phone, Heart, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Logo } from '../components/Logo.jsx';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -59,121 +60,145 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem 1.5rem'
-    }}>
-      <div className="card" style={{ maxWidth: '520px', width: '100%', padding: '2rem' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2.5rem 1.5rem',
+        background: '#F4F6F8'
+      }}
+    >
+      <div
+        className="card"
+        style={{
+          maxWidth: '540px',
+          width: '100%',
+          padding: '2.25rem',
+          boxShadow: 'var(--shadow-lg)',
+          borderRadius: 'var(--radius-lg)'
+        }}
+      >
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, #3A86FF 0%, #E63946 100%)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '0.75rem'
-          }}>
-            <ShieldAlert size={28} color="#FFFFFF" />
+          <div style={{ display: 'inline-block', marginBottom: '0.85rem' }}>
+            <Logo size="large" showText={false} />
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.35rem' }}>Create Safety Account</h2>
-          <p style={{ fontSize: '0.875rem' }}>Set up your emergency profile and family contacts</p>
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Open Your Safety Account
+          </h2>
+          <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: 0 }}>
+            Configure your responder credentials and emergency circle
+          </p>
         </div>
 
         {error && (
-          <div style={{
-            background: 'var(--color-danger-bg)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1rem',
-            marginBottom: '1.25rem',
-            color: '#FCA5A5',
-            fontSize: '0.85rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
+          <div
+            style={{
+              background: '#FDE8E8',
+              border: '1px solid #F8B4B4',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.75rem 1rem',
+              marginBottom: '1.25rem',
+              color: '#9B1C1C',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
             <AlertCircle size={16} />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="name">Full Name *</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="e.g. Ankit Kumar"
-            />
-          </div>
-
           <div className="grid-2">
             <div className="form-group">
-              <label className="form-label" htmlFor="email">Email Address *</label>
+              <label className="form-label">Full Name *</label>
               <input
-                id="email"
-                name="email"
+                type="text"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Rohan Verma"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Email Address *</label>
+              <input
                 type="email"
+                name="email"
                 required
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@domain.com"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="phone">Phone Number</label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+91 98765 43210"
+                placeholder="rohan@family.net"
               />
             </div>
           </div>
 
           <div className="grid-2">
             <div className="form-group">
-              <label className="form-label" htmlFor="password">Password (min 6 chars) *</label>
+              <label className="form-label">Password *</label>
               <input
-                id="password"
-                name="password"
                 type="password"
+                name="password"
                 required
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="••••••••"
+                placeholder="Min 6 chars"
               />
             </div>
+
             <div className="form-group">
-              <label className="form-label" htmlFor="confirmPassword">Confirm Password *</label>
+              <label className="form-label">Confirm Password *</label>
               <input
-                id="confirmPassword"
-                name="confirmPassword"
                 type="password"
+                name="confirmPassword"
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="••••••••"
+                placeholder="Re-enter password"
               />
             </div>
           </div>
 
           <div className="grid-2">
             <div className="form-group">
-              <label className="form-label" htmlFor="bloodGroup">Blood Group</label>
-              <select id="bloodGroup" name="bloodGroup" value={formData.bloodGroup} onChange={handleChange}>
-                <option value="">Select (Optional)</option>
+              <label className="form-label">Your Mobile Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="+919876543210"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Primary Emergency Contact</label>
+              <input
+                type="tel"
+                name="emergencyContactPhone"
+                value={formData.emergencyContactPhone}
+                onChange={handleChange}
+                placeholder="+919876543211"
+              />
+            </div>
+          </div>
+
+          <div className="grid-2">
+            <div className="form-group">
+              <label className="form-label">Blood Group</label>
+              <select
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleChange}
+              >
+                <option value="">Select Blood Group</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
@@ -184,46 +209,33 @@ export const RegisterPage = () => {
                 <option value="AB-">AB-</option>
               </select>
             </div>
+
             <div className="form-group">
-              <label className="form-label" htmlFor="emergencyContactPhone">Primary Emergency Phone</label>
+              <label className="form-label">Critical Medical Notes</label>
               <input
-                id="emergencyContactPhone"
-                name="emergencyContactPhone"
-                type="tel"
-                value={formData.emergencyContactPhone}
+                type="text"
+                name="medicalNotes"
+                value={formData.medicalNotes}
                 onChange={handleChange}
-                placeholder="+91 98765 00000"
+                placeholder="e.g. Asthmatic, Penicillin allergy"
               />
             </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="medicalNotes">Critical Medical Notes</label>
-            <textarea
-              id="medicalNotes"
-              name="medicalNotes"
-              rows="2"
-              value={formData.medicalNotes}
-              onChange={handleChange}
-              placeholder="Allergies, chronic conditions, inhaler/medication location..."
-            ></textarea>
-            <span className="form-help">Displayed in emergency dispatcher readouts if SOS is triggered.</span>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary btn-lg"
-            style={{ width: '100%', marginTop: '0.5rem' }}
+            className="btn btn-primary"
+            style={{ width: '100%', marginTop: '0.75rem', fontWeight: 800 }}
           >
-            {loading ? 'Creating Profile...' : 'Complete Registration'} <ArrowRight size={16} />
+            {loading ? 'Creating Safety Profile...' : 'Complete Account Registration'}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem' }}>
-          <span style={{ color: 'var(--text-secondary)' }}>Already registered? </span>
-          <Link to="/login" style={{ fontWeight: 600 }}>
-            Sign In
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
+            Sign in &rarr;
           </Link>
         </div>
       </div>

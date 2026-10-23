@@ -3,8 +3,8 @@ services:
     name: signal-bridge
     env: node
     plan: free
-    buildCommand: npm install && npm --prefix client install && npm --prefix client run build && npm --prefix server install
-    startCommand: npm --prefix server start
+    buildCommand: npm run build
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV

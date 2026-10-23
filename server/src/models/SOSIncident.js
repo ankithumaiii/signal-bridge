@@ -5,17 +5,20 @@ const sosRecipientNotificationSchema = new mongoose.Schema(
     contactId: { type: mongoose.Schema.Types.ObjectId, ref: 'Contact' },
     name: { type: String, required: true },
     phone: { type: String, required: true },
-    channel: { type: String, enum: ['sms', 'in_app', 'simulated_dispatch'], default: 'simulated_dispatch' },
+    channel: { type: String, default: 'sms' },
     status: {
       type: String,
-      enum: ['draft', 'queued_locally', 'submitted', 'sent', 'delivered', 'acknowledged', 'failed'],
-      default: 'submitted'
+      enum: ['draft', 'queued', 'queued_locally', 'submitted', 'sending', 'accepted_by_provider', 'sent', 'delivered', 'acknowledged', 'failed', 'simulated'],
+      default: 'queued'
     },
+    providerMessageId: { type: String, default: null },
+    providerError: { type: String, default: null },
+    attempts: { type: Number, default: 0 },
     sentAt: { type: Date, default: null },
     deliveredAt: { type: Date, default: null },
     acknowledgedAt: { type: Date, default: null },
     acknowledgementNote: { type: String, default: '' },
-    isDemoSimulated: { type: Boolean, default: true }
+    isDemoSimulated: { type: Boolean, default: false }
   },
   { _id: false }
 );

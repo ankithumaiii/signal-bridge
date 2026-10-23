@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const LocationContext = createContext(null);
 
@@ -8,7 +8,7 @@ export const LocationProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const requestLocation = useCallback(() => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (!('geolocation' in navigator)) {
         setStatus('unavailable');
         setErrorMessage('Geolocation is not supported by your browser.');
@@ -30,7 +30,7 @@ export const LocationProvider = ({ children }) => {
           setStatus('granted');
           resolve(newCoords);
         },
-        (error) => {
+        async (error) => {
           let errText = 'Failed to acquire location.';
           if (error.code === error.PERMISSION_DENIED) {
             setStatus('denied');
@@ -43,16 +43,70 @@ export const LocationProvider = ({ children }) => {
             errText = 'Location request timed out.';
           }
           setErrorMessage(errText);
+
+          // Fallback to IP geolocation if GPS is unavailable/denied so map is at least in device's region
+          try {
+            const res = await fetch('https://ipapi.co/json/');
+            if (res.ok) {
+              const data = await res.json();
+              if (data.latitude && data.longitude) {
+                const ipCoords = {
+                  lat: data.latitude,
+                  lng: data.longitude,
+                  accuracy: 5000,
+                  timestamp: new Date().toISOString(),
+                  city: data.city,
+                  region: data.region
+                };
+                setCoords(ipCoords);
+                setStatus('granted');
+                return resolve(ipCoords);
+              }
+            }
+          } catch {
+            // ignore ip fallback failure
+          }
           resolve(null);
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 30000
+          timeout: 8000,
+          maximumAge: 10000
         }
       );
     });
   }, []);
+
+  // Automatically acquire device live location on mount and watch continuous position updates
+  useEffect(() => {
+    requestLocation();
+
+    let watchId = null;
+    if ('geolocation' in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setCoords({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: Math.round(position.coords.accuracy),
+            timestamp: new Date(position.timestamp).toISOString()
+          });
+          setStatus('granted');
+        },
+        () => {},
+        {
+          enableHighAccuracy: true,
+          maximumAge: 5000
+        }
+      );
+    }
+
+    return () => {
+      if (watchId !== null && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [requestLocation]);
 
   return (
     <LocationContext.Provider

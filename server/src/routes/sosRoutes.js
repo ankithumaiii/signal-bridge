@@ -6,6 +6,8 @@ import {
   updateSOSStatus,
   log112Call,
   acknowledgeRecipient,
+  getIncidentNotifications,
+  sendTestSMS,
   createSOSSchema
 } from '../controllers/sosController.js';
 import { protect } from '../middleware/auth.js';
@@ -16,8 +18,10 @@ const router = express.Router();
 router.use(protect);
 
 router.post('/', validate(createSOSSchema), createSOS);
+router.post('/test-sms', sendTestSMS);
 router.get('/active', getActiveSOS);
 router.get('/history', getSOSHistory);
+router.get('/:id/notifications', getIncidentNotifications);
 router.put('/:id/status', updateSOSStatus);
 router.post('/call-112', log112Call);
 router.post('/acknowledge', acknowledgeRecipient);

@@ -10,9 +10,14 @@ import {
   ArrowRight,
   WifiOff,
   CheckCircle2,
-  Lock
+  Lock,
+  Compass,
+  Activity,
+  Layers,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Logo } from '../components/Logo.jsx';
 
 export const LandingPage = () => {
   const { isAuthenticated, demoLogin } = useAuth();
@@ -28,34 +33,21 @@ export const LandingPage = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F4F6F8' }}>
       {/* Top Bar */}
-      <header style={{
-        height: 'var(--header-height)',
-        padding: '0 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'rgba(11, 19, 43, 0.85)',
-        backdropFilter: 'blur(10px)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: 'var(--radius-md)',
-            background: 'linear-gradient(135deg, #3A86FF 0%, #E63946 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <ShieldAlert size={18} color="#fff" />
-          </div>
-          <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>
-            SIGNAL <span style={{ color: 'var(--brand-blue)' }}>BRIDGE</span>
-          </span>
-        </div>
+      <header
+        style={{
+          height: 'var(--header-height)',
+          padding: '0 2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid var(--border-subtle)',
+          background: '#FFFFFF',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)'
+        }}
+      >
+        <Logo size="medium" showText={true} />
 
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           {isAuthenticated ? (
@@ -64,8 +56,13 @@ export const LandingPage = () => {
             </Link>
           ) : (
             <>
-              <button onClick={handleDemoLogin} className="btn btn-secondary btn-sm" style={{ border: '1px solid rgba(217, 70, 239, 0.4)' }}>
-                <Sparkles size={14} color="#E879F9" /> 1-Click Demo
+              <button
+                onClick={handleDemoLogin}
+                className="btn btn-secondary btn-sm"
+                style={{ borderColor: 'rgba(255, 72, 0, 0.35)', color: '#FF4800', fontWeight: 700 }}
+              >
+                <Sparkles size={14} color="#FF4800" />
+                <span>1-Click Demo</span>
               </button>
               <Link to="/login" className="btn btn-primary btn-sm">
                 Log In
@@ -76,145 +73,235 @@ export const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section style={{ padding: '3.5rem 1.5rem 2.5rem 1.5rem', textAlign: 'center', maxWidth: '860px', margin: '0 auto' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.35rem 0.85rem',
-          borderRadius: 'var(--radius-full)',
-          background: 'rgba(58, 134, 255, 0.12)',
-          border: '1px solid rgba(58, 134, 255, 0.3)',
-          color: 'var(--brand-blue)',
-          fontSize: '0.85rem',
-          fontWeight: 600,
-          marginBottom: '1.25rem'
-        }}>
-          <Radio size={14} /> Offline-Aware Emergency Safety & Danger Radar
+      <section style={{ padding: '4rem 1.5rem 3rem 1.5rem', textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.4rem 1rem',
+            borderRadius: 'var(--radius-full)',
+            background: '#FFF5F0',
+            border: '1px solid rgba(255, 72, 0, 0.3)',
+            color: '#FF4800',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            marginBottom: '1.5rem'
+          }}
+        >
+          <Radio size={14} />
+          <span>High-Reliability Safety System • Offline-Aware SOS Radar</span>
         </div>
 
-        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.25rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: '1.25rem' }}>
-          When Connectivity Fails, <br />
-          <span style={{ background: 'linear-gradient(135deg, #3A86FF 0%, #E63946 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Your Safety Lifeline Stays Intact.
+        <h1
+          style={{
+            fontSize: 'clamp(2.3rem, 5vw, 3.6rem)',
+            fontWeight: 800,
+            lineHeight: 1.15,
+            marginBottom: '1.25rem',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.03em'
+          }}
+        >
+          When Network Fails, <br />
+          <span
+            style={{
+              background: 'linear-gradient(135deg, #FF4800 0%, #FF7A00 50%, #E02424 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Your Emergency Lifeline Stays Armed.
           </span>
         </h1>
 
-        <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.6 }}>
-          Signal Bridge connects families during urban disasters and personal emergencies. Activate one-touch verified SOS, coordinate over offline-queued family circles, and navigate around verified community hazards with transparent rule-based corroboration.
+        <p
+          style={{
+            fontSize: '1.1rem',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.6,
+            maxWidth: '680px',
+            margin: '0 auto 2rem auto'
+          }}
+        >
+          Signal Bridge brings institutional-grade emergency dispatch, transparent community danger-zone corroboration, and offline synchronization — packaged in a clean, high-clarity emergency user interface.
         </p>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-          <button onClick={handleDemoLogin} className="btn btn-sos btn-lg" style={{ minWidth: '200px' }}>
-            <Sparkles size={18} /> Launch Live Demo
+        {/* CTA Buttons */}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleDemoLogin}
+            className="btn btn-primary btn-lg"
+            style={{ fontSize: '1.05rem', fontWeight: 800, padding: '0.9rem 2rem' }}
+          >
+            <Sparkles size={18} />
+            <span>Launch Live Demo (Rohan Verma)</span>
           </button>
-          <Link to="/register" className="btn btn-secondary btn-lg" style={{ minWidth: '180px' }}>
-            Create Account
+
+          <Link
+            to="/register"
+            className="btn btn-secondary btn-lg"
+            style={{ fontSize: '1.05rem', fontWeight: 700, padding: '0.9rem 1.75rem' }}
+          >
+            <span>Create Free Account</span>
+            <ArrowRight size={16} />
           </Link>
-          <a href="tel:112" className="btn btn-outline-danger btn-lg">
-            <PhoneCall size={18} /> Quick Call 112
-          </a>
         </div>
 
-        {/* Status Indicators Pill Row */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1.5rem',
-          flexWrap: 'wrap',
-          color: 'var(--text-muted)',
-          fontSize: '0.85rem'
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <CheckCircle2 size={16} color="var(--color-success)" /> GPS Coordinate Tracking
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <WifiOff size={16} color="var(--brand-blue)" /> Offline Queue & Idempotency
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <PhoneCall size={16} color="#FF6B6B" /> India ERSS 112 Integration Ready
-          </span>
+        {/* Institutional Trust Badges */}
+        <div
+          style={{
+            marginTop: '3.5rem',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2rem',
+            flexWrap: 'wrap',
+            color: 'var(--text-muted)',
+            fontSize: '0.84rem',
+            fontWeight: 600
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <PhoneCall size={16} color="#E02424" />
+            <span>Official India ERSS 112 Compatible</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <WifiOff size={16} color="#FF4800" />
+            <span>Idempotent Offline-Queue Fallback</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <Lock size={16} color="#0E9F6E" />
+            <span>End-to-End Cryptographic Security</span>
+          </div>
         </div>
       </section>
 
-      {/* Feature Pillars */}
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '1rem 1.5rem 3.5rem 1.5rem', width: '100%' }}>
-        <div className="grid-3">
+      {/* 4 Feature Pillars (Signal Bridge Card Grid) */}
+      <section style={{ maxWidth: '1180px', margin: '0 auto', padding: '1rem 1.5rem 5rem 1.5rem', width: '100%' }}>
+        <div className="grid-4">
+          {/* Pillar 1 */}
           <div className="card">
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(230, 57, 70, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem'
-            }}>
-              <ShieldAlert size={24} color="#E63946" />
+            <div
+              style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: 'var(--radius-sm)',
+                background: '#FDE8E8',
+                color: '#E02424',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem'
+              }}
+            >
+              <ShieldAlert size={22} />
             </div>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Verified SOS Workflow</h3>
-            <p style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-              Press-and-hold trigger with cancellation grace period. Captures GPS coordinates, notifies emergency contacts, and generates structured dispatcher readouts for 112.
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+              1-Tap Emergency SOS
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Press-and-hold trigger prevents false alarms. Captures browser GPS telemetry, notifies trusted emergency circle, and opens immediate official 112 dialer.
             </p>
           </div>
 
+          {/* Pillar 2 */}
           <div className="card">
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(58, 134, 255, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem'
-            }}>
-              <MapPin size={24} color="#3A86FF" />
+            <div
+              style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: 'var(--radius-sm)',
+                background: '#FEF3C7',
+                color: '#D97706',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem'
+              }}
+            >
+              <Compass size={22} />
             </div>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Safety Radar & Hazard Map</h3>
-            <p style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-              Interactive OpenStreetMap tracking waterlogging, road closures, accidents, and fire. Community reports are verified through transparent spatial proximity rules.
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+              Transparent Hazard Radar
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              CartoDB Voyager live map of floods, fires, tree falls, and accidents. Corroborated with mathematical Haversine proximity engine — zero black-box AI scores.
             </p>
           </div>
 
+          {/* Pillar 3 */}
           <div className="card">
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(16, 185, 129, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem'
-            }}>
-              <Users size={24} color="#10B981" />
+            <div
+              style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: 'var(--radius-sm)',
+                background: '#FFF5F0',
+                color: '#FF4800',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem'
+              }}
+            >
+              <Users size={22} />
             </div>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>Family Emergency Circles</h3>
-            <p style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-              Private family messaging with real-time Socket.IO and offline-queued sync. Send "I'm Safe" check-ins and voluntary time-limited location sharing.
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+              Family Safety Circles
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              One-tap "I am Safe" check-ins, Socket.IO real-time channels, and offline queueing with idempotency keys so messages never duplicate or drop.
+            </p>
+          </div>
+
+          {/* Pillar 4 */}
+          <div className="card">
+            <div
+              style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: 'var(--radius-sm)',
+                background: '#DEF7EC',
+                color: '#0E9F6E',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem'
+              }}
+            >
+              <MapPin size={22} />
+            </div>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+              Voluntary Location Privacy
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Location sharing is 100% opt-in, auto-expires after selected hours (1h, 4h, 8h, 24h), and can be revoked with a single click at any time.
             </p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{
-        marginTop: 'auto',
-        borderTop: '1px solid var(--border-subtle)',
-        padding: '1.5rem',
-        textAlign: 'center',
-        background: 'rgba(11, 19, 43, 0.95)',
-        fontSize: '0.85rem',
-        color: 'var(--text-muted)'
-      }}>
-        <p>
-          Signal Bridge &copy; {new Date().getFullYear()} — Built for Public Safety & Emergency Resilience.
-        </p>
-        <p style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
-          Disclaimer: Browser-based web applications rely on available client hardware and connectivity. Standard emergency numbers (112) should always be dialed in life-threatening events.
-        </p>
+      <footer
+        style={{
+          marginTop: 'auto',
+          borderTop: '1px solid var(--border-subtle)',
+          padding: '1.5rem 2rem',
+          background: '#FFFFFF',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          fontSize: '0.82rem',
+          color: 'var(--text-muted)'
+        }}
+      >
+        <Logo size="small" showText={true} />
+        <div>
+          <span>Signal Bridge Platform • Offline-Aware Emergency Safety Edition • 2026</span>
+        </div>
       </footer>
     </div>
   );

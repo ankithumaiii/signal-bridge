@@ -11,7 +11,9 @@ import {
   RefreshCw,
   XCircle,
   Copy,
-  Check
+  Check,
+  ShieldCheck,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLocation } from '../context/LocationContext.jsx';
@@ -80,7 +82,6 @@ export const SOSPage = () => {
 
   useEffect(() => {
     fetchSOSState();
-    // Auto-attempt location request
     if (!coords) {
       requestLocation();
     }
@@ -125,7 +126,6 @@ Emergency Services (India): 112`;
       };
 
       if (!isOnline) {
-        // Enqueue offline action safely
         enqueueOfflineAction({
           type: 'create_sos',
           payload
@@ -163,18 +163,17 @@ Emergency Services (India): 112`;
     }
   };
 
-  // Demo action: simulate contact acknowledgement
   const handleSimulateAcknowledgement = async (contactId) => {
     if (!activeIncident) return;
     try {
       await api.acknowledgeSOS({
         incidentId: activeIncident._id,
         contactId,
-        note: 'Confirmed received on phone dialer. Help is on the way.'
+        note: 'Simulated direct recipient mobile SMS acknowledgment'
       });
       fetchSOSState();
     } catch (err) {
-      console.warn('Ack failed:', err.message);
+      alert(`Simulation failed: ${err.message}`);
     }
   };
 
@@ -187,31 +186,34 @@ Emergency Services (India): 112`;
   return (
     <div className="page-wrapper" style={{ maxWidth: '800px' }}>
       <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem' }}>
-          <ShieldAlert size={28} color="var(--sos-red)" /> Emergency SOS Activation
+        <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', letterSpacing: '-0.02em' }}>
+          <ShieldAlert size={28} color="#E02424" /> Emergency SOS Console
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-          Real-time incident dispatch, emergency calling, and family coordination
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+          High-priority incident dispatch, emergency calling, and family coordination
         </p>
       </div>
 
-      {/* Immediate Call 112 Bar (Never delayed, always accessible) */}
-      <div className="card" style={{
-        background: 'rgba(230, 57, 70, 0.12)',
-        border: '1px solid rgba(230, 57, 70, 0.4)',
-        padding: '1.25rem',
-        marginBottom: '1.5rem'
-      }}>
+      {/* Immediate Call 112 Action Bar */}
+      <div
+        className="card"
+        style={{
+          background: '#FDE8E8',
+          border: '1px solid #F8B4B4',
+          padding: '1.25rem',
+          marginBottom: '1.5rem'
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#FF6B6B', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <PhoneCall size={18} /> Immediate Emergency Calling (India ERSS 112)
+            <div style={{ fontWeight: 800, fontSize: '1rem', color: '#9B1C1C', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <PhoneCall size={18} /> Official Emergency Calling (India ERSS 112)
             </div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Police • Fire • Ambulance • Disaster Helpline. Accessible without GPS or internet.
+            <div style={{ fontSize: '0.82rem', color: '#771D1D', marginTop: '0.15rem' }}>
+              Police • Fire • Ambulance • Disaster Relief. Accessible without GPS or internet.
             </div>
           </div>
-          <div style={{ minWidth: '220px' }}>
+          <div style={{ flex: '1 1 auto', minWidth: '180px', maxWidth: '320px' }}>
             <Call112Button incidentId={activeIncident?._id} emergencySummary={emergencySummary} variant="primary" />
           </div>
         </div>
@@ -219,19 +221,23 @@ Emergency Services (India): 112`;
 
       {/* Active Incident State or Inactive Trigger Form */}
       {activeIncident ? (
-        <div className="card" style={{ border: '2px solid var(--sos-red)', padding: '1.75rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ border: '2px solid #E02424', padding: '1.75rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
             <div>
-              <span className="badge badge-critical" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem' }}>
+              <span className="badge badge-critical" style={{ fontSize: '0.82rem', padding: '0.35rem 0.75rem' }}>
                 SOS ACTIVE • {activeIncident.incidentNumber}
               </span>
-              <h2 style={{ fontSize: '1.4rem', marginTop: '0.5rem', color: '#FFFFFF' }}>
+              <h2 style={{ fontSize: '1.35rem', marginTop: '0.5rem', color: 'var(--text-primary)', fontWeight: 800 }}>
                 {activeIncident.category}
               </h2>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={() => handleResolveIncident('resolved')} className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34D399', borderColor: '#10B981' }}>
-                <CheckCircle size={15} /> Resolve Emergency
+              <button
+                onClick={() => handleResolveIncident('resolved')}
+                className="btn btn-secondary btn-sm"
+                style={{ background: '#DEF7EC', color: '#03543F', borderColor: '#31C48D', fontWeight: 700 }}
+              >
+                <CheckCircle size={15} /> Resolve Incident
               </button>
               <button onClick={() => handleResolveIncident('cancelled')} className="btn btn-secondary btn-sm">
                 <XCircle size={15} /> Cancel SOS
@@ -239,22 +245,24 @@ Emergency Services (India): 112`;
             </div>
           </div>
 
-          <p style={{ fontSize: '0.95rem', marginBottom: '1.25rem', background: 'rgba(255, 255, 255, 0.03)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)' }}>
-            <strong>Note:</strong> {activeIncident.description || 'Emergency SOS triggered.'}
+          <p style={{ fontSize: '0.9rem', marginBottom: '1.25rem', background: 'var(--bg-card-inset)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+            <strong>Dispatched Note:</strong> {activeIncident.description || 'Emergency SOS triggered.'}
           </p>
 
           {/* Location Details */}
-          <div style={{
-            background: 'rgba(11, 19, 43, 0.7)',
-            border: '1px solid var(--border-medium)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1rem',
-            marginBottom: '1.5rem'
-          }}>
-            <div style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--brand-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-              <Navigation size={15} /> Incident Coordinates
+          <div
+            style={{
+              background: 'var(--bg-card-inset)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '1rem',
+              marginBottom: '1.5rem'
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#FF4800', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
+              <Navigation size={15} /> Dispatched Geolocation Coordinates
             </div>
-            <div style={{ fontSize: '0.9rem', color: '#FFFFFF' }}>
+            <div style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>
               {activeIncident.location?.lat && activeIncident.location?.lng ? (
                 <>
                   <span>Lat: {activeIncident.location.lat.toFixed(5)}, Lng: {activeIncident.location.lng.toFixed(5)}</span>
@@ -268,8 +276,8 @@ Emergency Services (India): 112`;
 
           {/* Recipient Notification States */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Send size={16} color="var(--brand-blue)" /> Trusted Contact Notification Status
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Send size={16} color="#FF4800" /> Trusted Contact Dispatch Log
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {activeIncident.recipients?.map((rec, idx) => (
@@ -279,16 +287,16 @@ Emergency Services (India): 112`;
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'rgba(255, 255, 255, 0.04)',
+                    padding: '0.75rem 1rem',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--bg-card-inset)',
                     border: '1px solid var(--border-subtle)',
                     flexWrap: 'wrap',
                     gap: '0.5rem'
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#FFFFFF' }}>{rec.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{rec.name}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{rec.phone} • {rec.channel}</div>
                   </div>
 
@@ -298,7 +306,7 @@ Emergency Services (India): 112`;
                       <button
                         onClick={() => handleSimulateAcknowledgement(rec.contactId)}
                         className="btn btn-secondary btn-sm"
-                        style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', height: '26px' }}
+                        style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', height: '28px', color: '#FF4800', borderColor: 'rgba(255, 72, 0, 0.3)' }}
                         title="Simulate recipient tapping acknowledged on phone"
                       >
                         [DEMO] Simulate Ack
@@ -312,17 +320,17 @@ Emergency Services (India): 112`;
 
           {/* Readout Summary Clipboard Card */}
           {emergencySummary && (
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '1rem' }}>
+            <div style={{ background: 'var(--bg-card-inset)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', padding: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   112 Operator Dispatch Readout
                 </span>
                 <button onClick={copySummary} className="btn btn-secondary btn-sm" style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}>
-                  {copied ? <Check size={14} color="var(--color-success)" /> : <Copy size={14} />}
+                  {copied ? <Check size={14} color="#0E9F6E" /> : <Copy size={14} />}
                   <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
-              <pre style={{ fontSize: '0.8rem', color: '#E2E8F0', whiteSpace: 'pre-wrap', fontFamily: 'monospace', margin: 0 }}>
+              <pre style={{ fontSize: '0.8rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', fontFamily: 'monospace', margin: 0 }}>
                 {emergencySummary}
               </pre>
             </div>
@@ -330,30 +338,31 @@ Emergency Services (India): 112`;
         </div>
       ) : (
         /* Inactive SOS Trigger Configuration & Button */
-        <div className="card" style={{ padding: '2rem 1.5rem', marginBottom: '1.5rem' }}>
-          {/* Big Accessible Press-and-Hold Button */}
+        <div className="card" style={{ padding: '2rem 1.75rem', marginBottom: '1.5rem' }}>
+          {/* Signal Bridge Big Accessible Press-and-Hold Button */}
           <div style={{ margin: '1rem 0 2rem 0', display: 'flex', justifyContent: 'center' }}>
             <SOSButton onTrigger={handleTriggerSOS} disabled={submitting} />
           </div>
 
           {/* Emergency Category Selector */}
           <div className="form-group">
-            <label className="form-label">Emergency Category</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
+            <label className="form-label">Select Incident Nature</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: '0.5rem' }}>
               {categories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => setCategory(cat)}
                   style={{
-                    padding: '0.65rem 0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: category === cat ? 'rgba(230, 57, 70, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                    border: `1px solid ${category === cat ? 'var(--sos-red)' : 'var(--border-subtle)'}`,
-                    color: category === cat ? '#FF6B6B' : 'var(--text-secondary)',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    textAlign: 'left'
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: 'var(--radius-sm)',
+                    background: category === cat ? '#FFF5F0' : '#FFFFFF',
+                    border: `1px solid ${category === cat ? '#FF4800' : 'var(--border-medium)'}`,
+                    color: category === cat ? '#FF4800' : 'var(--text-primary)',
+                    fontWeight: 700,
+                    fontSize: '0.84rem',
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   {cat}
@@ -365,40 +374,42 @@ Emergency Services (India): 112`;
           {/* Optional Emergency Description */}
           <div className="form-group">
             <label className="form-label" htmlFor="description">
-              Short Emergency Note (Optional)
+              Situation Notes (Optional)
             </label>
             <textarea
               id="description"
               rows="2"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Inhaler needed, stuck in underpass flooding..."
-            ></textarea>
+              placeholder="e.g. Inhaler needed, underpass waterlogging rising..."
+            />
           </div>
 
           {/* Location Status Bar */}
-          <div style={{
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid var(--border-subtle)',
-            marginBottom: '1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.5rem'
-          }}>
+          <div
+            style={{
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--bg-card-inset)',
+              border: '1px solid var(--border-subtle)',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.5rem'
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <MapPin size={16} color={coords ? 'var(--color-success)' : 'var(--color-warning)'} />
-              <span style={{ fontSize: '0.85rem' }}>
+              <MapPin size={16} color={coords ? '#0E9F6E' : '#D97706'} />
+              <span style={{ fontSize: '0.84rem', fontWeight: 600 }}>
                 {coords
                   ? `GPS coordinates locked (±${coords.accuracy}m)`
-                  : 'GPS location pending permission'}
+                  : 'GPS location pending device permission'}
               </span>
             </div>
             {!coords && (
-              <button onClick={requestLocation} className="btn btn-secondary btn-sm" style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}>
+              <button onClick={requestLocation} className="btn btn-secondary btn-sm" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }}>
                 Acquire GPS Now
               </button>
             )}
@@ -407,10 +418,10 @@ Emergency Services (India): 112`;
           {/* Contact Dispatch Selection */}
           <div className="form-group" style={{ margin: 0 }}>
             <label className="form-label">
-              Recipients ({selectedContacts.length} selected to receive notification)
+              Dispatch Recipients ({selectedContacts.length} selected)
             </label>
             {contacts.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 {contacts.map((c) => {
                   const isChecked = selectedContacts.includes(c._id);
                   return (
@@ -420,14 +431,36 @@ Emergency Services (India): 112`;
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.65rem 0.85rem',
                         borderRadius: 'var(--radius-sm)',
-                        background: isChecked ? 'rgba(58, 134, 255, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                        border: `1px solid ${isChecked ? 'rgba(58, 134, 255, 0.3)' : 'var(--border-subtle)'}`,
-                        cursor: 'pointer'
+                        background: isChecked ? '#FFF5F0' : '#FFFFFF',
+                        border: `1px solid ${isChecked ? '#FF4800' : 'var(--border-subtle)'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{c.name} ({c.relationship})</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                        <div
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            background: isChecked ? 'linear-gradient(135deg, #FF4800 0%, #FF7A00 100%)' : '#F3F4F6',
+                            color: isChecked ? '#FFFFFF' : '#4B5563',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '0.78rem'
+                          }}
+                        >
+                          {c.name ? c.name.charAt(0) : 'C'}
+                        </div>
+                        <span style={{ fontSize: '0.86rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {c.name} <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>({c.relationship})</span>
+                        </span>
+                      </div>
+
                       <input
                         type="checkbox"
                         checked={isChecked}
@@ -436,7 +469,7 @@ Emergency Services (India): 112`;
                             prev.includes(c._id) ? prev.filter((id) => id !== c._id) : [...prev, c._id]
                           );
                         }}
-                        style={{ width: '18px', height: '18px' }}
+                        style={{ width: '18px', height: '18px', accentColor: '#FF4800' }}
                       />
                     </label>
                   );
@@ -444,7 +477,7 @@ Emergency Services (India): 112`;
               </div>
             ) : (
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                No trusted contacts configured yet. Go to the Family tab to add emergency contacts.
+                No emergency contacts registered yet. Go to the Contacts tab to add trusted family.
               </p>
             )}
           </div>

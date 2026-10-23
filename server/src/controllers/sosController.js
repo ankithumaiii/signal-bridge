@@ -3,6 +3,7 @@ import { SOSIncident } from '../models/SOSIncident.js';
 import { Contact } from '../models/Contact.js';
 import { User } from '../models/User.js';
 import { dispatchSOSNotifications, formatEmergencySummary } from '../services/notificationService.js';
+import { smsService } from '../services/sms/smsService.js';
 
 export const createSOSSchema = z.object({
   body: z.object({
@@ -73,8 +74,8 @@ export const createSOS = async (req, res, next) => {
       ]
     });
 
-    // Dispatch notifications to contacts (honest state tracking)
-    const recipientStatuses = await dispatchSOSNotifications({ incident, contacts });
+    // Dispatch notifications to contacts (honest state tracking via SMSService)
+    const recipientStatuses = await dispatchSOSNotifications({ incident, contacts, user: req.user });
     incident.recipients = recipientStatuses;
 
     await incident.save();
@@ -256,6 +257,64 @@ export const acknowledgeRecipient = async (req, res, next) => {
       message: 'Acknowledgement logged.',
       incident
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Inspect recipient notification delivery progress (Authorized to incident owner)
+export const getIncidentNotifications = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const incident = await SOSIncident.findOne({ _id: id, userId: req.user._id });
+
+    if (!incident) {
+      return res.status(404).json({
+        success: false,
+        message: 'SOS incident not found or unauthorized.'
+      });
+    }
+
+    res.json({
+      success: true,
+      incidentNumber: incident.incidentNumber,
+      status: incident.status,
+      recipients: incident.recipients,
+      updatedAt: incident.updatedAt
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Safe, authenticated test-SMS endpoint (Strictly non-emergency, never creates incident or contacts 112)
+export const sendTestSMS = async (req, res, next) => {
+  try {
+    const to = req.body?.to || req.user?.phone;
+    if (!to) {
+      return res.status(400).json({
+        success: false,
+        blocker: 'MISSING_PHONE',
+        message: 'Destination phone number is required in request body or user profile.'
+      });
+    }
+
+    const result = await smsService.sendTestSMS({ to, user: req.user });
+
+    if (result.blocker === 'MISSING_PROVIDER_CREDENTIALS') {
+      return res.status(503).json(result);
+    }
+    if (result.blocker === 'RESTRICTED_ALLOWLIST') {
+      return res.status(403).json(result);
+    }
+    if (result.blocker === 'INVALID_PHONE_FORMAT' || result.blocker === 'INVALID_RECIPIENT') {
+      return res.status(400).json(result);
+    }
+    if (!result.success) {
+      return res.status(502).json(result);
+    }
+
+    res.json(result);
   } catch (err) {
     next(err);
   }

@@ -51,7 +51,7 @@ describe('Signal Bridge API Test Suite', () => {
     if (server) {
       await new Promise((resolve) => server.close(resolve));
     }
-    await mongoose.connection.close();
+    await mongoose.disconnect();
   });
 
   // 1. Health check

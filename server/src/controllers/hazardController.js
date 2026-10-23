@@ -25,14 +25,14 @@ export const createHazardSchema = z.object({
       address: z.string().optional().default('Pinned location')
     }),
     photoUrl: z.string().optional().default(''),
-    eventTime: z.string().datetime().optional()
+    eventTime: z.union([z.string(), z.date()]).optional()
   })
 });
 
 // Get all active hazards for the safety map with optional filters
 export const getHazards = async (req, res, next) => {
   try {
-    const { category, severity, status, search, includeResolved } = req.query;
+    const { category, severity, status, search, includeResolved, limit } = req.query;
 
     const query = {};
 
@@ -59,7 +59,8 @@ export const getHazards = async (req, res, next) => {
       ];
     }
 
-    const hazards = await Hazard.find(query).sort({ createdAt: -1 }).limit(100);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 100));
+    const hazards = await Hazard.find(query).sort({ createdAt: -1 }).limit(limitNum);
 
     // Public sanitization: ensure reporter sensitive credentials are never leaked
     const sanitizedHazards = hazards.map((h) => {

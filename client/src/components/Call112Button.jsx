@@ -59,57 +59,77 @@ export const Call112Button = ({ emergencySummary, incidentId, variant = 'primary
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="card-header">
-              <h3 className="card-title" style={{ color: '#FF6B6B' }}>
-                <PhoneCall size={20} /> Emergency 112 Readout Summary
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem', marginBottom: '1rem' }}>
+              <h3 className="card-title" style={{ color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1.15rem' }}>
+                <PhoneCall size={20} /> Emergency 112 Dispatch Readout
               </h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="btn btn-secondary btn-sm"
-                style={{ padding: '0.25rem 0.5rem' }}
+                style={{ padding: '0.3rem 0.6rem' }}
               >
                 <X size={16} />
               </button>
             </div>
 
             <p style={{ fontSize: '0.85rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-              Read these exact details directly to the 112 emergency dispatcher:
+              Read these critical facts verbatim to the 112 operator:
             </p>
 
             <pre
               style={{
-                background: 'rgba(11, 19, 43, 0.9)',
-                border: '1px solid var(--border-medium)',
+                background: 'var(--bg-canvas)',
+                border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-md)',
                 padding: '1rem',
-                fontSize: '0.85rem',
-                color: '#F8F9FA',
+                fontSize: '0.82rem',
+                color: 'var(--text-primary)',
                 whiteSpace: 'pre-wrap',
                 fontFamily: 'monospace',
-                marginBottom: '1rem'
+                marginBottom: '1.25rem',
+                lineHeight: 1.5
               }}
             >
               {emergencySummary}
             </pre>
 
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-              <button onClick={copySummary} className="btn btn-secondary btn-sm">
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button onClick={copySummary} className="btn btn-secondary btn-sm" style={{ padding: '0.5rem 1rem' }}>
                 {copied ? <Check size={16} color="var(--color-success)" /> : <Copy size={16} />}
-                <span>{copied ? 'Copied' : 'Copy Details'}</span>
+                <span>{copied ? 'Copied' : 'Copy Summary'}</span>
               </button>
               <a
                 href="tel:112"
                 onClick={handleOpenDialer}
-                className="btn btn-sos btn-sm"
+                className="btn btn-sm"
+                style={{
+                  background: 'var(--color-danger)',
+                  color: '#FFFFFF',
+                  padding: '0.5rem 1rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  borderRadius: 'var(--radius-pill)',
+                  fontWeight: 700
+                }}
               >
                 <PhoneCall size={16} />
-                <span>Open 112 Phone Dialer</span>
+                <span>Launch 112 Dialer</span>
               </a>
             </div>
 
-            <div style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: 'var(--radius-sm)', background: 'rgba(255, 255, 255, 0.04)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <strong>Notice:</strong> Signal Bridge initiates standard voice call via your device's telecom provider to India's Emergency Response Support System (ERSS 112). No automated data link is claimed unless authorized by authorities.
+            <div style={{
+              marginTop: '1.25rem',
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--bg-canvas)',
+              border: '1px solid var(--border-subtle)',
+              fontSize: '0.75rem',
+              color: 'var(--text-muted)',
+              lineHeight: 1.45
+            }}>
+              <strong>Regulatory Notice:</strong> Signal Bridge initiates a standard telecommunications voice call to India's Emergency Response Support System (ERSS 112). No private automated backend data link is claimed unless authorized by public safety agencies.
             </div>
           </div>
         </div>

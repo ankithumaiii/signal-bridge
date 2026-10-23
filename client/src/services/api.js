@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const rawBase = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = rawBase.replace(/\/+$/, '');
 
 export const getAuthToken = () => localStorage.getItem('signal_bridge_token');
 export const setAuthToken = (token) => localStorage.setItem('signal_bridge_token', token);
@@ -27,7 +28,11 @@ export const apiFetch = async (endpoint, options = {}) => {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      const error = new Error(data.message || `Request failed with status ${res.status}`);
+      let message = data.message;
+      if (!message && (res.status === 502 || res.status === 503 || res.status === 504)) {
+        message = `Backend server is unreachable (HTTP ${res.status}). Please ensure the server is running on port 5000.`;
+      }
+      const error = new Error(message || `Request failed with status ${res.status}`);
       error.status = res.status;
       error.data = data;
       throw error;
@@ -43,6 +48,22 @@ export const apiFetch = async (endpoint, options = {}) => {
     }
     throw err;
   }
+};
+
+const toQueryString = (params) => {
+  if (!params) return '';
+  if (typeof params === 'string') return params.startsWith('?') ? params.substring(1) : params;
+  if (params instanceof URLSearchParams) return params.toString();
+  if (typeof params === 'object') {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        searchParams.append(key, val);
+      }
+    });
+    return searchParams.toString();
+  }
+  return String(params);
 };
 
 // API Surface Methods
@@ -73,10 +94,17 @@ export const api = {
   updateSOSStatus: (id, body) => apiFetch(`/api/sos/${id}/status`, { method: 'PUT', body }),
   log112Call: (body) => apiFetch('/api/sos/call-112', { method: 'POST', body }),
   acknowledgeSOS: (body) => apiFetch('/api/sos/acknowledge', { method: 'POST', body }),
+  sendTestSMS: (body) => apiFetch('/api/sos/test-sms', { method: 'POST', body }),
 
   // Hazards
-  getHazards: (params = '') => apiFetch(`/api/hazards${params ? `?${params}` : ''}`),
-  checkDuplicates: (params) => apiFetch(`/api/hazards/check-duplicates?${params}`),
+  getHazards: (params = '') => {
+    const q = toQueryString(params);
+    return apiFetch(`/api/hazards${q ? `?${q}` : ''}`);
+  },
+  checkDuplicates: (params = '') => {
+    const q = toQueryString(params);
+    return apiFetch(`/api/hazards/check-duplicates${q ? `?${q}` : ''}`);
+  },
   createHazard: (body) => apiFetch('/api/hazards', { method: 'POST', body }),
   getMyHazards: () => apiFetch('/api/hazards/my'),
   corroborateHazard: (id, body) => apiFetch(`/api/hazards/${id}/corroborate`, { method: 'POST', body }),
@@ -88,6 +116,18 @@ export const api = {
   createConversation: (body) => apiFetch('/api/messages/conversations', { method: 'POST', body }),
   getMessages: (convId) => apiFetch(`/api/messages/conversations/${convId}/messages`),
   sendMessage: (convId, body) => apiFetch(`/api/messages/conversations/${convId}/messages`, { method: 'POST', body }),
+
+  // Subscription & Entitlements
+  getSubscriptionPlans: () => apiFetch('/api/subscription/plans'),
+  getCurrentSubscription: () => apiFetch('/api/subscription/current'),
+  cancelSubscription: () => apiFetch('/api/subscription/cancel', { method: 'POST' }),
+
+  // Razorpay Payments
+  createPaymentOrder: (body) => apiFetch('/api/payments/create-order', { method: 'POST', body }),
+  verifyPayment: (body) => apiFetch('/api/payments/verify', { method: 'POST', body }),
+
+  // SOS Notifications Status
+  getIncidentNotifications: (id) => apiFetch(`/api/sos/${id}/notifications`),
 
   // Health
   checkHealth: () => apiFetch('/api/health')

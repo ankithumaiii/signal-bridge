@@ -119,11 +119,11 @@ export const SOSButton = ({ onTrigger, disabled = false, size = 'large' }) => {
             height: 'calc(100% - 20px)',
             borderRadius: 'var(--radius-full)',
             background: isPressing
-              ? 'linear-gradient(135deg, #D90429 0%, #BA181B 100%)'
-              : 'linear-gradient(135deg, #E63946 0%, #D90429 100%)',
+              ? 'linear-gradient(135deg, #C93700 0%, #B91C1C 100%)'
+              : 'linear-gradient(135deg, #FF4800 0%, #E02424 100%)',
             boxShadow: isPressing
-              ? '0 0 35px rgba(230, 57, 70, 0.8)'
-              : '0 8px 30px rgba(230, 57, 70, 0.5)',
+              ? '0 0 35px rgba(255, 72, 0, 0.75)'
+              : '0 8px 28px rgba(255, 72, 0, 0.45)',
             transform: isPressing ? 'scale(0.96)' : 'scale(1)',
             display: 'flex',
             flexDirection: 'column',
@@ -134,7 +134,8 @@ export const SOSButton = ({ onTrigger, disabled = false, size = 'large' }) => {
             transition: 'transform 0.1s ease, box-shadow 0.2s ease',
             zIndex: 2,
             border: 'none',
-            outline: 'none'
+            outline: 'none',
+            touchAction: 'none'
           }}
         >
           <AlertCircle size={size === 'large' ? 44 : 28} strokeWidth={2.5} />

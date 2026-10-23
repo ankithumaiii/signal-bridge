@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -9,155 +9,265 @@ import {
   MessageSquare,
   History,
   Settings,
+  PhoneCall,
+  X,
   ShieldCheck,
-  PhoneCall
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Logo } from './Logo.jsx';
 
-export const Sidebar = () => {
+export const Sidebar = ({ isMobile = false, onClose = () => {} }) => {
   const { user } = useAuth();
 
-  const navItems = [
-    { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    { to: '/app/sos', label: 'Emergency SOS', icon: AlertTriangle, isSos: true },
-    { to: '/app/map', label: 'Safety Radar Map', icon: MapPin },
-    { to: '/app/report', label: 'Report Hazard', icon: PlusCircle },
-    { to: '/app/family', label: 'Trusted Contacts', icon: Users },
-    { to: '/app/messages', label: 'Family Circle Chat', icon: MessageSquare },
-    { to: '/app/history', label: 'Incident History', icon: History },
-    { to: '/app/settings', label: 'Settings & Privacy', icon: Settings }
+  const navSections = [
+    {
+      title: 'COMMAND & CONTROL',
+      items: [
+        { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
+        { to: '/app/sos', label: 'Emergency SOS', icon: AlertTriangle, isSos: true },
+        { to: '/app/map', label: 'Safety Radar Map', icon: MapPin },
+        { to: '/app/report', label: 'Report Hazard', icon: PlusCircle }
+      ]
+    },
+    {
+      title: 'SAFETY NETWORK',
+      items: [
+        { to: '/app/family', label: 'Trusted Contacts', icon: Users },
+        { to: '/app/messages', label: 'Family Circle Chat', icon: MessageSquare }
+      ]
+    },
+    {
+      title: 'ACCOUNT & AUDIT',
+      items: [
+        { to: '/app/history', label: 'Incident History', icon: History },
+        { to: '/app/settings', label: 'Settings & Privacy', icon: Settings }
+      ]
+    }
   ];
 
   return (
-    <aside
-      className="desktop-sidebar"
+    <div
       style={{
-        position: 'fixed',
-        top: 'var(--header-height)',
-        left: 0,
-        bottom: 0,
-        width: 'var(--sidebar-width)',
-        background: 'rgba(11, 19, 43, 0.98)',
-        borderRight: '1px solid var(--border-subtle)',
-        display: 'none',
+        display: 'flex',
         flexDirection: 'column',
+        height: '100%',
         justifyContent: 'space-between',
-        padding: '1.25rem 0.75rem',
-        overflowY: 'auto',
-        zIndex: 900
+        padding: '1.25rem 0.9rem',
+        background: '#111928',
+        color: '#E5E7EB'
       }}
     >
+      {/* Top Header & Navigation */}
       <div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                style={({ isActive }) => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.7rem 1rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s ease',
-                  background: isActive
-                    ? item.isSos
-                      ? 'rgba(230, 57, 70, 0.18)'
-                      : 'rgba(58, 134, 255, 0.14)'
-                    : 'transparent',
-                  color: isActive
-                    ? item.isSos
-                      ? '#FF6B6B'
-                      : '#FFFFFF'
-                    : 'var(--text-secondary)',
-                  border: isActive
-                    ? `1px solid ${item.isSos ? 'rgba(230, 57, 70, 0.4)' : 'rgba(58, 134, 255, 0.35)'}`
-                    : '1px solid transparent'
-                })}
+        {/* Brand Header with Signal Bridge Halo Ring */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.25rem 0.5rem 1.25rem 0.5rem',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            marginBottom: '1.25rem'
+          }}
+        >
+          <Logo size="medium" light={true} showText={true} />
+
+          {isMobile && (
+            <button
+              onClick={onClose}
+              aria-label="Close Navigation"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: 'none',
+                color: '#9CA3AF',
+                width: '32px',
+                height: '32px',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation Sections */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {navSections.map((section) => (
+            <div key={section.title}>
+              <div
+                style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  color: 'rgba(255, 255, 255, 0.4)',
+                  letterSpacing: '0.08em',
+                  padding: '0 0.75rem',
+                  marginBottom: '0.45rem'
+                }}
               >
-                <Icon size={18} color={item.isSos ? '#E63946' : undefined} />
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
+                {section.title}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      end={item.end}
+                      onClick={isMobile ? onClose : undefined}
+                      style={({ isActive }) => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '0.88rem',
+                        fontWeight: isActive ? 700 : 500,
+                        textDecoration: 'none',
+                        transition: 'all 0.15s ease',
+                        background: isActive
+                          ? item.isSos
+                            ? 'rgba(224, 36, 36, 0.16)'
+                            : 'rgba(255, 72, 0, 0.12)'
+                          : 'transparent',
+                        color: isActive
+                          ? item.isSos
+                            ? '#F87171'
+                            : '#FFFFFF'
+                          : '#9CA3AF',
+                        borderLeft: isActive
+                          ? `3px solid ${item.isSos ? '#E02424' : '#FF4800'}`
+                          : '3px solid transparent'
+                      })}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <Icon
+                          size={18}
+                          color={item.isSos ? '#E02424' : undefined}
+                          style={{ flexShrink: 0 }}
+                        />
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.label}
+                        </span>
+                      </div>
+
+                      {item.isSos && (
+                        <span
+                          style={{
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: '99px',
+                            background: '#E02424',
+                            color: '#FFFFFF'
+                          }}
+                        >
+                          SOS
+                        </span>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </div>
 
-      {/* Emergency 112 Direct Quick Action */}
-      <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {/* Bottom Actions & User Profile (Signal Bridge Account Card) */}
+      <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {/* Direct Call Emergency 112 Action Pill */}
         <a
           href="tel:112"
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.5rem',
-            padding: '0.65rem 0.75rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(230, 57, 70, 0.12)',
-            border: '1px solid rgba(230, 57, 70, 0.35)',
-            color: '#FF6B6B',
-            fontSize: '0.85rem',
+            gap: '0.55rem',
+            padding: '0.65rem 0.85rem',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(224, 36, 36, 0.14)',
+            border: '1px solid rgba(224, 36, 36, 0.35)',
+            color: '#F87171',
+            fontSize: '0.84rem',
             fontWeight: 700,
-            textDecoration: 'none'
+            textDecoration: 'none',
+            transition: 'all 0.15s ease'
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(224, 36, 36, 0.25)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(224, 36, 36, 0.14)'; }}
         >
           <PhoneCall size={16} />
-          <span>Call Emergency 112</span>
+          <span>Emergency ERSS 112</span>
         </a>
 
-        {/* User Card */}
+        {/* Signal Bridge Member Profile Card */}
         <div
           style={{
-            padding: '0.75rem',
+            padding: '0.75rem 0.85rem',
             borderRadius: 'var(--radius-md)',
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid var(--border-subtle)',
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.65rem'
+            gap: '0.75rem'
           }}
         >
+          {/* Avatar with initial */}
           <div
             style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: 'var(--radius-full)',
-              background: 'var(--brand-blue)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #FF4800 0%, #FF7A00 100%)',
+              color: '#FFFFFF',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              color: '#FFFFFF'
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              boxShadow: '0 2px 8px rgba(255, 72, 0, 0.35)',
+              flexShrink: 0
             }}
           >
-            {user?.name?.[0]?.toUpperCase() || 'U'}
+            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#FFFFFF', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              {user?.name || 'Logged In'}
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                color: '#FFFFFF',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {user?.name || 'Rohan Verma'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-              {user?.email || ''}
+            <div
+              style={{
+                fontSize: '0.72rem',
+                color: '#10B981',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                fontWeight: 600
+              }}
+            >
+              <ShieldCheck size={12} />
+              <span>Verified Account</span>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-sidebar {
-            display: flex !important;
-          }
-        }
-      `}</style>
-    </aside>
+    </div>
   );
 };

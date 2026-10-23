@@ -15,8 +15,18 @@ const seedDatabase = async () => {
     console.log('[Seed] Connected.');
 
     // Clear existing demo data
-    await User.deleteMany({ email: { $in: ['demo@signalbridge.org', 'priya.sharma@family.net', 'arav.patel@family.net'] } });
+    const demoEmails = ['demo@signalbridge.org', 'priya.sharma@family.net', 'arav.patel@family.net'];
+    const existingDemoUsers = await User.find({ email: { $in: demoEmails } }).select('_id');
+    const demoUserIds = existingDemoUsers.map(u => u._id);
+
+    await User.deleteMany({ email: { $in: demoEmails } });
     await Hazard.deleteMany({ isDemoSeeded: true });
+    await SOSIncident.deleteMany({ incidentNumber: 'SB-2026-1049' });
+    if (demoUserIds.length > 0) {
+      await Contact.deleteMany({ userId: { $in: demoUserIds } });
+      await Conversation.deleteMany({ members: { $in: demoUserIds } });
+      await SOSIncident.deleteMany({ userId: { $in: demoUserIds } });
+    }
 
     // 1. Create Demo Users
     const salt = await bcrypt.genSalt(10);

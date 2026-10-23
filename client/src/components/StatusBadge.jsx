@@ -51,7 +51,7 @@ export const StatusBadge = ({ status, type = 'hazard' }) => {
       case 'Critical':
         return <span className="badge badge-critical">Critical</span>;
       case 'High':
-        return <span className="badge badge-critical" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#F87171' }}>High</span>;
+        return <span className="badge badge-critical" style={{ background: 'rgba(217, 119, 6, 0.12)', color: '#D97706', borderColor: 'rgba(217, 119, 6, 0.3)' }}>High</span>;
       case 'Medium':
         return <span className="badge badge-unverified">Medium</span>;
       case 'Low':
@@ -67,7 +67,7 @@ export const StatusBadge = ({ status, type = 'hazard' }) => {
       case 'delivered':
         return <span className="badge badge-multiple">Delivered</span>;
       case 'sent':
-        return <span className="badge badge-multiple" style={{ background: 'rgba(58, 134, 255, 0.1)' }}>Sent</span>;
+        return <span className="badge badge-multiple" style={{ background: 'rgba(194, 94, 52, 0.1)' }}>Sent</span>;
       case 'queued_locally':
         return <span className="badge badge-unverified">Queued Locally</span>;
       case 'failed':

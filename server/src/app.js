@@ -14,6 +14,8 @@ import sosRoutes from './routes/sosRoutes.js';
 import hazardRoutes from './routes/hazardRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,11 +42,19 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token']
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token', 'x-razorpay-signature', 'x-razorpay-event-id']
   })
 );
 
-app.use(express.json({ limit: '5mb' }));
+// Body parsing with raw buffer preservation for webhook signature verification
+app.use(
+  express.json({
+    limit: '5mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    }
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Apply rate limiter to general API
@@ -58,6 +68,8 @@ app.use('/api/sos', sosRoutes);
 app.use('/api/hazards', hazardRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Catch 404 for API
 app.use('/api/*', (req, res) => {
@@ -68,6 +80,7 @@ app.use('/api/*', (req, res) => {
 });
 
 if (fs.existsSync(clientDistPath)) {
+  console.log(`[Static] Mounting frontend from ${clientDistPath}`);
   app.use(express.static(clientDistPath));
   app.get('*', (req, res, next) => {
     if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/socket.io')) {
@@ -75,6 +88,8 @@ if (fs.existsSync(clientDistPath)) {
     }
     res.sendFile(path.join(clientDistPath, 'index.html'));
   });
+} else {
+  console.warn(`[Static Warning] Frontend dist directory not found at ${clientDistPath}. Run 'npm run build:client' first.`);
 }
 
 // Centralized error handler

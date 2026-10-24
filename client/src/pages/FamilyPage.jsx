@@ -28,6 +28,16 @@ export const FamilyPage = () => {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
+
+  useEffect(() => {
+    if (showAddModal) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [showAddModal]);
   const [formData, setFormData] = useState({
     name: '',
     relationship: 'Family',

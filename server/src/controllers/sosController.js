@@ -33,8 +33,8 @@ export const createSOS = async (req, res, next) => {
   try {
     const { category, description, location, selectedContactIds } = req.body;
 
-    // Generate readable incident number e.g. SB-2026-7842
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    // Generate readable incident number e.g. SB-2026-784291
+    const randomSuffix = `${Math.floor(1000 + Math.random() * 9000)}${Date.now().toString().slice(-3)}`;
     const incidentNumber = `SB-2026-${randomSuffix}`;
 
     // Query trusted contacts who have notifyInEmergency = true

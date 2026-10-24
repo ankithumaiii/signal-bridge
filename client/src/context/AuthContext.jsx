@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   });
   const [token, setToken] = useState(getAuthToken());
   const [loading, setLoading] = useState(!getAuthToken() ? false : true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const fetchCurrentUser = async () => {
     try {
@@ -74,12 +75,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    setIsLoggingOut(true);
     removeAuthToken();
     try {
       localStorage.removeItem('signal_bridge_user');
     } catch {}
     setToken(null);
     setUser(null);
+    setTimeout(() => {
+      setIsLoggingOut(false);
+    }, 1000);
   };
 
   const updateProfile = async (updates) => {
@@ -97,6 +102,7 @@ export const AuthProvider = ({ children }) => {
         token,
         isAuthenticated: !!user,
         loading,
+        isLoggingOut,
         login,
         demoLogin,
         register,

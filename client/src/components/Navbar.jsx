@@ -27,7 +27,7 @@ export const Navbar = ({ onOpenMobileMenu = () => {} }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   // Dynamic route titles

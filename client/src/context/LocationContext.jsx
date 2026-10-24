@@ -84,11 +84,15 @@ export const LocationProvider = ({ children }) => {
   );
 };
 
-export const useLocation = () =>
-  useContext(LocationContext) || {
-    coords: DEFAULT_COORDS,
-    status: 'idle',
-    errorMessage: null,
-    requestLocation: async () => DEFAULT_COORDS,
-    setManualCoords: () => {}
-  };
+const FALLBACK_LOCATION = {
+  coords: DEFAULT_COORDS,
+  status: 'idle',
+  errorMessage: null,
+  requestLocation: async () => DEFAULT_COORDS,
+  setManualCoords: () => {}
+};
+
+export const useLocation = () => {
+  const ctx = useContext(LocationContext);
+  return ctx || FALLBACK_LOCATION;
+};

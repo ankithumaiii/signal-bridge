@@ -158,7 +158,7 @@ export const SettingsPage = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   return (

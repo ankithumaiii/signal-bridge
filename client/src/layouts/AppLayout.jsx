@@ -14,7 +14,7 @@ import { useLocation } from '../context/LocationContext.jsx';
 import { getSocket } from '../services/socket.js';
 
 export const AppLayout = () => {
-  const { isAuthenticated, loading, user, logout } = useAuth();
+  const { isAuthenticated, loading, user, logout, isLoggingOut } = useAuth();
   const { isOnline, demoMode } = useOffline();
   const { coords } = useLocation();
   const navigate = useNavigate();
@@ -28,9 +28,20 @@ export const AppLayout = () => {
     }
   }, [user]);
 
+  // Restore scroll locking safely when mobile menu drawer opens/closes
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [mobileMenuOpen]);
+
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   if (loading) {
@@ -72,6 +83,9 @@ export const AppLayout = () => {
   }
 
   if (!isAuthenticated) {
+    if (isLoggingOut) {
+      return <Navigate to="/" replace />;
+    }
     return <Navigate to="/login" replace />;
   }
 

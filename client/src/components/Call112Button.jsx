@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PhoneCall, Copy, Check, Info, X } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -6,6 +6,16 @@ export const Call112Button = ({ emergencySummary, incidentId, variant = 'primary
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [callInitiated, setCallInitiated] = useState(false);
+
+  useEffect(() => {
+    if (showModal) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [showModal]);
 
   const handleOpenDialer = async () => {
     setCallInitiated(true);

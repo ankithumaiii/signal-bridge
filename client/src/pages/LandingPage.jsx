@@ -38,7 +38,7 @@ export const LandingPage = () => {
   };
 
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)' }}>
+    <div className="landing-page-wrapper">
       {/* Top Bar */}
       <header className="landing-header">
         <Logo size="medium" showText={true} />

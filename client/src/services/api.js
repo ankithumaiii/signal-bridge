@@ -18,19 +18,27 @@ export const apiFetch = async (endpoint, options = {}) => {
 
   const url = `${API_BASE}${endpoint}`;
 
+  // 15-second timeout controller so phone network glitches or cold starts don't hang indefinitely
+  const controller = new AbortController();
+  const timeoutMs = options.timeout || 15000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const res = await fetch(url, {
       ...options,
       headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      signal: options.signal || controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       let message = data.message;
       if (!message && (res.status === 502 || res.status === 503 || res.status === 504)) {
-        message = `Backend server is unreachable (HTTP ${res.status}). Please ensure the server is running on port 5000.`;
+        message = 'Server is currently waking up (Render free tier). Please wait 10 seconds and try again.';
       }
       const error = new Error(message || `Request failed with status ${res.status}`);
       error.status = res.status;
@@ -40,6 +48,12 @@ export const apiFetch = async (endpoint, options = {}) => {
 
     return data;
   } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      const timeoutError = new Error('Connection timed out. If on live server, it may be waking up from sleep. Please try again in a few seconds.');
+      timeoutError.isTimeout = true;
+      throw timeoutError;
+    }
     // Check if network failed / offline
     if (err.name === 'TypeError' && err.message.includes('fetch')) {
       const offlineError = new Error('Network error: Unable to reach Signal Bridge servers. You may be offline.');
@@ -95,6 +109,8 @@ export const api = {
   log112Call: (body) => apiFetch('/api/sos/call-112', { method: 'POST', body }),
   acknowledgeSOS: (body) => apiFetch('/api/sos/acknowledge', { method: 'POST', body }),
   sendTestSMS: (body) => apiFetch('/api/sos/test-sms', { method: 'POST', body }),
+  sendTestWhatsApp: (body) => apiFetch('/api/whatsapp/test', { method: 'POST', body }),
+  getWhatsAppStatus: () => apiFetch('/api/whatsapp/status'),
 
   // Hazards
   getHazards: (params = '') => {

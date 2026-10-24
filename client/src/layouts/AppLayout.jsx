@@ -36,22 +36,36 @@ export const AppLayout = () => {
   if (loading) {
     return (
       <div style={{
-        width: '100vw', height: '100vh',
+        width: '100%', minHeight: '100dvh',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'var(--color-bg)'
+        background: 'var(--color-bg)', padding: '1.5rem'
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: '320px' }}>
           <div style={{
-            width: '32px', height: '32px',
+            width: '34px', height: '34px',
             border: '2.5px solid var(--color-border)',
             borderTopColor: 'var(--color-accent)',
             borderRadius: '50%',
             animation: 'spin 0.8s linear infinite',
             margin: '0 auto 1rem auto'
           }} />
-          <p style={{ color: 'var(--color-ink-secondary)', fontWeight: 500, fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--color-ink)', fontWeight: 600, fontSize: '0.92rem', marginBottom: '0.35rem' }}>
             Connecting to Signal Bridge…
           </p>
+          <p style={{ color: 'var(--color-ink-muted)', fontSize: '0.8rem', lineHeight: 1.4, marginBottom: '1.25rem' }}>
+            Verifying your security credentials.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              navigate('/login', { replace: true });
+            }}
+            className="btn btn-secondary btn-sm"
+            style={{ fontSize: '0.8rem' }}
+          >
+            Go to Login
+          </button>
         </div>
       </div>
     );

@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test tests/api.test.js tests/sms.test.js tests/subscription.test.js",
+    "test": "node --test tests/api.test.js tests/sms.test.js tests/subscription.test.js tests/whatsapp.test.js",
     "seed": "node src/utils/seed.js"
   },
   "dependencies": {

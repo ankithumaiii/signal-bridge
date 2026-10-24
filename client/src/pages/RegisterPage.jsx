@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, Heart, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, Heart, AlertCircle, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Logo } from '../components/Logo.jsx';
 
@@ -18,8 +18,14 @@ export const RegisterPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/app', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,7 +57,7 @@ export const RegisterPage = () => {
         bloodGroup: formData.bloodGroup,
         medicalNotes: formData.medicalNotes
       });
-      navigate('/app');
+      navigate('/app', { replace: true });
     } catch (err) {
       setError(err.message || 'Registration failed. Please check your inputs.');
     } finally {
@@ -60,35 +66,17 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2.5rem 1.5rem',
-        background: '#F4F6F8'
-      }}
-    >
-      <div
-        className="card"
-        style={{
-          maxWidth: '540px',
-          width: '100%',
-          padding: '2.25rem',
-          boxShadow: 'var(--shadow-lg)',
-          borderRadius: 'var(--radius-lg)'
-        }}
-      >
+    <div className="auth-container">
+      <div className="auth-card" style={{ maxWidth: '520px' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div style={{ display: 'inline-block', marginBottom: '0.85rem' }}>
             <Logo size="large" showText={false} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Open Your Safety Account
           </h2>
-          <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: 0 }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0 }}>
             Configure your responder credentials and emergency circle
           </p>
         </div>
@@ -102,21 +90,21 @@ export const RegisterPage = () => {
               padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
               color: '#9B1C1C',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem'
             }}
           >
-            <AlertCircle size={16} />
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Full Name *</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Full Name *</label>
               <input
                 type="text"
                 name="name"
@@ -124,79 +112,89 @@ export const RegisterPage = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Rohan Verma"
+                style={{ minHeight: '40px' }}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Email Address *</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Email Address *</label>
               <input
                 type="email"
                 name="email"
                 required
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="rohan@family.net"
+                style={{ minHeight: '40px' }}
               />
             </div>
           </div>
 
           <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Password *</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Password *</label>
               <input
                 type="password"
                 name="password"
                 required
+                autoComplete="new-password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Min 6 chars"
+                style={{ minHeight: '40px' }}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Confirm Password *</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Confirm Password *</label>
               <input
                 type="password"
                 name="confirmPassword"
                 required
+                autoComplete="new-password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Re-enter password"
+                style={{ minHeight: '40px' }}
               />
             </div>
           </div>
 
           <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Your Mobile Phone</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Your Mobile Phone</label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="+919876543210"
+                style={{ minHeight: '40px' }}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Primary Emergency Contact</label>
+            <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Emergency Contact Phone</label>
               <input
                 type="tel"
                 name="emergencyContactPhone"
                 value={formData.emergencyContactPhone}
                 onChange={handleChange}
                 placeholder="+919876543211"
+                style={{ minHeight: '40px' }}
               />
             </div>
           </div>
 
           <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Blood Group</label>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Blood Group</label>
               <select
                 name="bloodGroup"
                 value={formData.bloodGroup}
                 onChange={handleChange}
+                style={{ minHeight: '40px' }}
               >
                 <option value="">Select Blood Group</option>
                 <option value="A+">A+</option>
@@ -210,14 +208,15 @@ export const RegisterPage = () => {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Critical Medical Notes</label>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem' }}>Critical Medical Notes</label>
               <input
                 type="text"
                 name="medicalNotes"
                 value={formData.medicalNotes}
                 onChange={handleChange}
                 placeholder="e.g. Asthmatic, Penicillin allergy"
+                style={{ minHeight: '40px' }}
               />
             </div>
           </div>
@@ -226,13 +225,13 @@ export const RegisterPage = () => {
             type="submit"
             disabled={loading}
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: '0.75rem', fontWeight: 800 }}
+            style={{ width: '100%', minHeight: '44px', fontWeight: 800, fontSize: '0.92rem' }}
           >
             {loading ? 'Creating Safety Profile...' : 'Complete Account Registration'}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
           <Link to="/login" style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
             Sign in &rarr;

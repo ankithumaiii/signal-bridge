@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Settings,
@@ -39,6 +39,54 @@ export const SettingsPage = () => {
   const [testPhone, setTestPhone] = useState(user?.phone || '');
   const [testingSMS, setTestingSMS] = useState(false);
   const [smsTestResult, setSmsTestResult] = useState(null);
+
+  // Safe Test WhatsApp state
+  const [waTestPhone, setWaTestPhone] = useState(user?.phone || '');
+  const [testingWA, setTestingWA] = useState(false);
+  const [waTestResult, setWaTestResult] = useState(null);
+  const [waStatus, setWaStatus] = useState(null);
+
+  useEffect(() => {
+    api.getWhatsAppStatus()
+      .then((res) => setWaStatus(res))
+      .catch(() => {});
+  }, []);
+
+  const handleSendTestWhatsApp = async (e) => {
+    e.preventDefault();
+    if (!waTestPhone.trim()) {
+      setWaTestResult({
+        success: false,
+        status: 'failed',
+        message: 'Please provide a valid destination phone number.'
+      });
+      return;
+    }
+
+    setTestingWA(true);
+    setWaTestResult(null);
+
+    try {
+      const res = await api.sendTestWhatsApp({ to: waTestPhone.trim() });
+      setWaTestResult({
+        success: res.success,
+        status: res.status,
+        message: res.message || 'Test WhatsApp alert dispatched.',
+        providerMessageId: res.providerMessageId,
+        isDemoSimulated: res.isDemoSimulated,
+        blocker: res.blocker
+      });
+    } catch (err) {
+      setWaTestResult({
+        success: false,
+        status: 'failed',
+        message: err.message || 'WhatsApp test request failed.',
+        blocker: err.data?.blocker || null
+      });
+    } finally {
+      setTestingWA(false);
+    }
+  };
 
   const handleSendTestSMS = async (e) => {
     e.preventDefault();
@@ -408,6 +456,124 @@ export const SettingsPage = () => {
           </div>
         )}
       </div>
+
+      {/* WhatsApp Cloud API Safe Test Card */}
+      <div className="card" style={{ padding: '1.75rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: 'var(--radius-sm)',
+            background: '#25D36620',
+            color: '#25D366',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <MessageSquare size={20} color="#25D366" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                WhatsApp Cloud API Emergency Gateway Test
+              </h3>
+              {waStatus && (
+                <span style={{
+                  fontSize: '0.72rem',
+                  padding: '0.15rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontWeight: 700,
+                  background: waStatus.enabled && waStatus.configured ? '#25D36625' : 'var(--color-accent-light)',
+                  color: waStatus.enabled && waStatus.configured ? '#128C7E' : 'var(--color-accent)',
+                  border: `1px solid ${waStatus.enabled && waStatus.configured ? '#25D36650' : 'var(--color-accent-border)'}`
+                }}>
+                  {waStatus.enabled && waStatus.configured ? `LIVE META ${waStatus.apiVersion}` : 'SAFE DEMO MODE'}
+                </span>
+              )}
+            </div>
+            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              Verify official Meta WhatsApp Cloud API alert transmission using a non-emergency test message
+            </p>
+          </div>
+        </div>
+
+        <div style={{
+          background: 'var(--bg-card-inset)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '0.75rem 1rem',
+          fontSize: '0.82rem',
+          color: 'var(--text-secondary)',
+          marginBottom: '1.25rem',
+          lineHeight: 1.5
+        }}>
+          <strong>Safety Isolation:</strong> This test is strictly non-emergency. It never dials 112, never creates an SOS incident in the database, and never notifies your emergency circle. In production, testing is restricted to allowlisted or verified profile numbers.
+        </div>
+
+        <form onSubmit={handleSendTestWhatsApp}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <div style={{ flex: '1 1 240px' }}>
+              <label className="form-label" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
+                Allowlisted / Verified WhatsApp Mobile Number
+              </label>
+              <input
+                type="tel"
+                value={waTestPhone}
+                onChange={(e) => setWaTestPhone(e.target.value)}
+                placeholder="e.g. 9876543210 (10 digits)"
+                style={{
+                  width: '100%',
+                  padding: '0.55rem 0.85rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--color-border)',
+                  fontSize: '0.9rem'
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={testingWA}
+              className="btn btn-primary"
+              style={{ padding: '0.55rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem', background: '#128C7E', borderColor: '#128C7E' }}
+            >
+              <Send size={15} />
+              <span>{testingWA ? 'Transmitting...' : 'Send Safe Test WhatsApp'}</span>
+            </button>
+          </div>
+        </form>
+
+        {waTestResult && (
+          <div style={{
+            padding: '0.85rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            border: `1px solid ${waTestResult.success ? '#25D366' : 'var(--color-emergency)'}`,
+            background: waTestResult.success ? 'rgba(37, 211, 102, 0.08)' : 'var(--color-emergency-bg)',
+            color: waTestResult.success ? '#128C7E' : 'var(--color-emergency-text)',
+            fontSize: '0.84rem'
+          }}>
+            <div style={{ fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span>Status: {waTestResult.status?.toUpperCase()}</span>
+              {waTestResult.isDemoSimulated && (
+                <span style={{ fontSize: '0.72rem', background: 'var(--color-accent-light)', color: 'var(--color-accent)', padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-full)', fontWeight: 800 }}>
+                  DEMO SIMULATED
+                </span>
+              )}
+            </div>
+            <p style={{ margin: 0, lineHeight: 1.45 }}>{waTestResult.message}</p>
+            {waTestResult.providerMessageId && (
+              <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.76rem', opacity: 0.85 }}>
+                Meta Gateway Message ID: <code>{waTestResult.providerMessageId}</code>
+              </p>
+            )}
+            {waTestResult.blocker && (
+              <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.76rem', fontWeight: 700 }}>
+                Blocker Code: {waTestResult.blocker}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
 
       {/* Demo Mode Toggle */}
       <div className="card" style={{ padding: '1.75rem', marginBottom: '1.5rem' }}>

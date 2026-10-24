@@ -25,30 +25,35 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <OfflineProvider>
-          <LocationProvider>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+          <Routes>
+            {/* Public Routes — zero location overhead, instant load */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-              {/* Protected Authenticated App Routes */}
-              <Route path="/app" element={<AppLayout />}>
-                <Route index element={<DashboardPage />} />
-                <Route path="sos" element={<SOSPage />} />
-                <Route path="map" element={<SafetyMapPage />} />
-                <Route path="report" element={<ReportHazardPage />} />
-                <Route path="family" element={<FamilyPage />} />
-                <Route path="messages" element={<MessagesPage />} />
-                <Route path="history" element={<HistoryPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="subscription" element={<SubscriptionPage />} />
-              </Route>
+            {/* Protected Authenticated App Routes */}
+            <Route
+              path="/app"
+              element={
+                <LocationProvider>
+                  <AppLayout />
+                </LocationProvider>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="sos" element={<SOSPage />} />
+              <Route path="map" element={<SafetyMapPage />} />
+              <Route path="report" element={<ReportHazardPage />} />
+              <Route path="family" element={<FamilyPage />} />
+              <Route path="messages" element={<MessagesPage />} />
+              <Route path="history" element={<HistoryPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="subscription" element={<SubscriptionPage />} />
+            </Route>
 
-              {/* Catch all fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </LocationProvider>
+            {/* Catch all fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </OfflineProvider>
       </AuthProvider>
     </BrowserRouter>

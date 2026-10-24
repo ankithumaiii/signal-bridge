@@ -75,7 +75,30 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    // Auto-provision demo account if requested and missing (guarantees live 1-Click Demo never gets stuck)
+    if (!user && email.toLowerCase() === 'demo@signalbridge.org' && password === 'demo12345') {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash('demo12345', salt);
+      user = await User.create({
+        name: 'Rohan Verma',
+        email: 'demo@signalbridge.org',
+        password: passwordHash,
+        phone: '+919876543210',
+        emergencyContactPhone: '+919876543211',
+        bloodGroup: 'O+',
+        medicalNotes: 'No chronic allergies. Asthmatic (inhaler carried in bag).',
+        lastKnownLocation: {
+          lat: 12.9716,
+          lng: 77.5946,
+          accuracy: 12,
+          updatedAt: new Date()
+        },
+        locationSharing: { enabled: true }
+      });
+    }
+
     if (!user) {
       return res.status(401).json({
         success: false,

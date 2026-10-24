@@ -16,6 +16,7 @@ import messageRoutes from './routes/messageRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import whatsappRoutes from './routes/whatsappRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,6 +71,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Catch 404 for API
 app.use('/api/*', (req, res) => {

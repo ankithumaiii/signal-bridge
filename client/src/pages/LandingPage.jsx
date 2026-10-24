@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShieldAlert,
@@ -14,58 +14,65 @@ import {
   Compass,
   Activity,
   Layers,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Logo } from '../components/Logo.jsx';
 
 export const LandingPage = () => {
   const { isAuthenticated, demoLogin } = useAuth();
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const navigate = useNavigate();
 
   const handleDemoLogin = async () => {
+    setLoadingDemo(true);
     try {
       await demoLogin();
-      navigate('/app');
+      navigate('/app', { replace: true });
     } catch (e) {
       navigate('/login');
+    } finally {
+      setLoadingDemo(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F4F6F8' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)' }}>
       {/* Top Bar */}
-      <header
-        style={{
-          height: 'var(--header-height)',
-          padding: '0 2rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '1px solid var(--border-subtle)',
-          background: '#FFFFFF',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)'
-        }}
-      >
+      <header className="landing-header">
         <Logo size="medium" showText={true} />
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {isAuthenticated ? (
-            <Link to="/app" className="btn btn-primary btn-sm">
-              Open Dashboard <ArrowRight size={14} />
+            <Link to="/app" className="btn btn-primary btn-sm" style={{ fontWeight: 700 }}>
+              <span>Dashboard</span>
+              <ArrowRight size={14} />
             </Link>
           ) : (
             <>
               <button
                 onClick={handleDemoLogin}
+                disabled={loadingDemo}
                 className="btn btn-secondary btn-sm"
-                style={{ borderColor: 'rgba(255, 72, 0, 0.35)', color: '#FF4800', fontWeight: 700 }}
+                style={{
+                  borderColor: 'rgba(255, 72, 0, 0.35)',
+                  color: '#FF4800',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
               >
-                <Sparkles size={14} color="#FF4800" />
-                <span>1-Click Demo</span>
+                {loadingDemo ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Sparkles size={13} color="#FF4800" />
+                )}
+                <span>Demo</span>
               </button>
-              <Link to="/login" className="btn btn-primary btn-sm">
-                Log In
+              <Link to="/login" className="btn btn-primary btn-sm" style={{ fontWeight: 700 }}>
+                Sign In
               </Link>
             </>
           )}
@@ -73,32 +80,32 @@ export const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section style={{ padding: '4rem 1.5rem 3rem 1.5rem', textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
+      <section style={{ padding: 'clamp(2.5rem, 6vw, 4.5rem) 1.25rem 2.5rem 1.25rem', textAlign: 'center', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.4rem 1rem',
+            gap: '0.45rem',
+            padding: '0.35rem 0.85rem',
             borderRadius: 'var(--radius-full)',
             background: '#FFF5F0',
             border: '1px solid rgba(255, 72, 0, 0.3)',
             color: '#FF4800',
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
             fontWeight: 700,
-            marginBottom: '1.5rem'
+            marginBottom: '1.25rem'
           }}
         >
-          <Radio size={14} />
-          <span>High-Reliability Safety System • Offline-Aware SOS Radar</span>
+          <Radio size={13} />
+          <span>Institutional Safety System • Offline-Aware SOS Radar</span>
         </div>
 
         <h1
           style={{
-            fontSize: 'clamp(2.3rem, 5vw, 3.6rem)',
+            fontSize: 'clamp(1.85rem, 5.5vw, 3.4rem)',
             fontWeight: 800,
             lineHeight: 1.15,
-            marginBottom: '1.25rem',
+            marginBottom: '1rem',
             color: 'var(--text-primary)',
             letterSpacing: '-0.03em'
           }}
@@ -117,90 +124,113 @@ export const LandingPage = () => {
 
         <p
           style={{
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
             color: 'var(--text-secondary)',
-            lineHeight: 1.6,
+            lineHeight: 1.55,
             maxWidth: '680px',
-            margin: '0 auto 2rem auto'
+            margin: '0 auto 1.75rem auto'
           }}
         >
           Signal Bridge brings institutional-grade emergency dispatch, transparent community danger-zone corroboration, and offline synchronization — packaged in a clean, high-clarity emergency user interface.
         </p>
 
         {/* CTA Buttons */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={handleDemoLogin}
-            className="btn btn-primary btn-lg"
-            style={{ fontSize: '1.05rem', fontWeight: 800, padding: '0.9rem 2rem' }}
-          >
-            <Sparkles size={18} />
-            <span>Launch Live Demo (Rohan Verma)</span>
-          </button>
+        <div className="landing-cta-group">
+          {isAuthenticated ? (
+            <Link
+              to="/app"
+              className="btn btn-primary btn-lg"
+              style={{ fontSize: '1rem', fontWeight: 800, padding: '0.85rem 2rem' }}
+            >
+              <span>Open Emergency Command Center</span>
+              <ArrowRight size={18} />
+            </Link>
+          ) : (
+            <>
+              <button
+                onClick={handleDemoLogin}
+                disabled={loadingDemo}
+                className="btn btn-primary btn-lg"
+                style={{ fontSize: '1rem', fontWeight: 800, padding: '0.85rem 1.75rem' }}
+              >
+                {loadingDemo ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Launching Demo…</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    <span>Launch Live Demo (Rohan Verma)</span>
+                  </>
+                )}
+              </button>
 
-          <Link
-            to="/register"
-            className="btn btn-secondary btn-lg"
-            style={{ fontSize: '1.05rem', fontWeight: 700, padding: '0.9rem 1.75rem' }}
-          >
-            <span>Create Free Account</span>
-            <ArrowRight size={16} />
-          </Link>
+              <Link
+                to="/register"
+                className="btn btn-secondary btn-lg"
+                style={{ fontSize: '1rem', fontWeight: 700, padding: '0.85rem 1.5rem' }}
+              >
+                <span>Create Free Account</span>
+                <ArrowRight size={16} />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Institutional Trust Badges */}
         <div
           style={{
-            marginTop: '3.5rem',
+            marginTop: '2.5rem',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '2rem',
+            gap: '1rem 1.5rem',
             flexWrap: 'wrap',
             color: 'var(--text-muted)',
-            fontSize: '0.84rem',
+            fontSize: '0.82rem',
             fontWeight: 600
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <PhoneCall size={16} color="#E02424" />
-            <span>Official India ERSS 112 Compatible</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <PhoneCall size={15} color="#E02424" />
+            <span>India ERSS 112 Compatible</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <WifiOff size={16} color="#FF4800" />
-            <span>Idempotent Offline-Queue Fallback</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <WifiOff size={15} color="#FF4800" />
+            <span>Offline-Queue Fallback</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <Lock size={16} color="#0E9F6E" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Lock size={15} color="#0E9F6E" />
             <span>End-to-End Cryptographic Security</span>
           </div>
         </div>
       </section>
 
-      {/* 4 Feature Pillars (Signal Bridge Card Grid) */}
-      <section style={{ maxWidth: '1180px', margin: '0 auto', padding: '1rem 1.5rem 5rem 1.5rem', width: '100%' }}>
+      {/* 4 Feature Pillars */}
+      <section style={{ maxWidth: '1180px', margin: '0 auto', padding: '1rem 1.25rem 4rem 1.25rem', width: '100%' }}>
         <div className="grid-4">
           {/* Pillar 1 */}
           <div className="card">
             <div
               style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: 'var(--radius-sm)',
                 background: '#FDE8E8',
                 color: '#E02424',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '1rem'
+                marginBottom: '0.85rem'
               }}
             >
-              <ShieldAlert size={22} />
+              <ShieldAlert size={20} />
             </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               1-Tap Emergency SOS
             </h3>
-            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
               Press-and-hold trigger prevents false alarms. Captures browser GPS telemetry, notifies trusted emergency circle, and opens immediate official 112 dialer.
             </p>
           </div>
@@ -209,24 +239,24 @@ export const LandingPage = () => {
           <div className="card">
             <div
               style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: 'var(--radius-sm)',
                 background: '#FEF3C7',
                 color: '#D97706',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '1rem'
+                marginBottom: '0.85rem'
               }}
             >
-              <Compass size={22} />
+              <Compass size={20} />
             </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Transparent Hazard Radar
             </h3>
-            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              CartoDB Voyager live map of floods, fires, tree falls, and accidents. Corroborated with mathematical Haversine proximity engine — zero black-box AI scores.
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
+              Live map of floods, fires, tree falls, and accidents. Corroborated with mathematical Haversine proximity engine — zero black-box AI scores.
             </p>
           </div>
 
@@ -234,23 +264,23 @@ export const LandingPage = () => {
           <div className="card">
             <div
               style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: 'var(--radius-sm)',
                 background: '#FFF5F0',
                 color: '#FF4800',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '1rem'
+                marginBottom: '0.85rem'
               }}
             >
-              <Users size={22} />
+              <Users size={20} />
             </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Family Safety Circles
             </h3>
-            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
               One-tap "I am Safe" check-ins, Socket.IO real-time channels, and offline queueing with idempotency keys so messages never duplicate or drop.
             </p>
           </div>
@@ -259,23 +289,23 @@ export const LandingPage = () => {
           <div className="card">
             <div
               style={{
-                width: '42px',
-                height: '42px',
+                width: '40px',
+                height: '40px',
                 borderRadius: 'var(--radius-sm)',
                 background: '#DEF7EC',
                 color: '#0E9F6E',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '1rem'
+                marginBottom: '0.85rem'
               }}
             >
-              <MapPin size={22} />
+              <MapPin size={20} />
             </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
               Voluntary Location Privacy
             </h3>
-            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
               Location sharing is 100% opt-in, auto-expires after selected hours (1h, 4h, 8h, 24h), and can be revoked with a single click at any time.
             </p>
           </div>
@@ -287,14 +317,14 @@ export const LandingPage = () => {
         style={{
           marginTop: 'auto',
           borderTop: '1px solid var(--border-subtle)',
-          padding: '1.5rem 2rem',
-          background: '#FFFFFF',
+          padding: '1.25rem 1.5rem',
+          background: 'var(--color-surface)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '1rem',
-          fontSize: '0.82rem',
+          gap: '0.75rem',
+          fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}
       >

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Mail, Lock, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Mail, Lock, AlertCircle, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../services/api.js';
 import { Logo } from '../components/Logo.jsx';
@@ -10,10 +10,18 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const [forgotMsg, setForgotMsg] = useState(null);
 
-  const { login, demoLogin } = useAuth();
+  const { login, demoLogin, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect immediately to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/app', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +30,7 @@ export const LoginPage = () => {
 
     try {
       await login(email, password);
-      navigate('/app');
+      navigate('/app', { replace: true });
     } catch (err) {
       setError(err.message || 'Failed to log in. Please check your credentials.');
     } finally {
@@ -32,14 +40,14 @@ export const LoginPage = () => {
 
   const handleDemoLogin = async () => {
     setError(null);
-    setLoading(true);
+    setLoadingDemo(true);
     try {
       await demoLogin();
-      navigate('/app');
+      navigate('/app', { replace: true });
     } catch (err) {
-      setError(err.message || 'Demo login failed.');
+      setError(err.message || 'Demo login failed. Please try again.');
     } finally {
-      setLoading(false);
+      setLoadingDemo(false);
     }
   };
 
@@ -57,66 +65,59 @@ export const LoginPage = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
-        background: '#F4F6F8'
-      }}
-    >
-      <div
-        className="card"
-        style={{
-          maxWidth: '440px',
-          width: '100%',
-          padding: '2.25rem',
-          boxShadow: 'var(--shadow-lg)',
-          borderRadius: 'var(--radius-lg)'
-        }}
-      >
+    <div className="auth-container">
+      <div className="auth-card">
         {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ display: 'inline-block', marginBottom: '1rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'inline-block', marginBottom: '0.85rem' }}>
             <Logo size="large" showText={false} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.35rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             Sign in to Signal Bridge
           </h2>
-          <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', margin: 0 }}>
-            Emergency Safety Command & Family Emergency Platform
+          <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0 }}>
+            Emergency Safety Command & Family Alert Platform
           </p>
         </div>
 
         {/* 1-Click Demo Login */}
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
           <button
             type="button"
             onClick={handleDemoLogin}
-            disabled={loading}
+            disabled={loading || loadingDemo}
             className="btn btn-secondary"
             style={{
               width: '100%',
+              minHeight: '44px',
               background: '#FFF5F0',
-              borderColor: 'rgba(255, 72, 0, 0.3)',
+              borderColor: 'rgba(255, 72, 0, 0.35)',
               color: '#FF4800',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem'
+              gap: '0.5rem',
+              fontSize: '0.88rem'
             }}
           >
-            <Sparkles size={16} color="#FF4800" />
-            <span>1-Click Demo Login (Rohan Verma)</span>
+            {loadingDemo ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                <span>Launching Demo Session…</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={16} color="#FF4800" />
+                <span>1-Click Demo Login (Rohan Verma)</span>
+              </>
+            )}
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
             Or sign in with email
           </span>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle)' }} />
@@ -131,13 +132,13 @@ export const LoginPage = () => {
               padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
               color: '#9B1C1C',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem'
             }}
           >
-            <AlertCircle size={16} />
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
         )}
@@ -151,7 +152,7 @@ export const LoginPage = () => {
               padding: '0.75rem 1rem',
               marginBottom: '1.25rem',
               color: '#03543F',
-              fontSize: '0.85rem'
+              fontSize: '0.84rem'
             }}
           >
             {forgotMsg}
@@ -160,16 +161,17 @@ export const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label" style={{ fontSize: '0.84rem' }}>Email Address</label>
             <div style={{ position: 'relative' }}>
               <input
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@domain.com"
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.5rem', minHeight: '42px' }}
               />
               <Mail
                 size={16}
@@ -179,25 +181,26 @@ export const LoginPage = () => {
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-              <label className="form-label" style={{ margin: 0 }}>Password</label>
+              <label className="form-label" style={{ margin: 0, fontSize: '0.84rem' }}>Password</label>
               <button
                 type="button"
                 onClick={handleForgotPassword}
                 style={{ background: 'none', border: 'none', padding: 0, color: 'var(--color-accent)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
               >
-                Forgot Password?
+                Forgot?
               </button>
             </div>
             <div style={{ position: 'relative' }}>
               <input
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.5rem', minHeight: '42px' }}
               />
               <Lock
                 size={16}
@@ -209,16 +212,16 @@ export const LoginPage = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || loadingDemo}
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: '1.25rem', fontWeight: 800 }}
+            style={{ width: '100%', minHeight: '44px', fontWeight: 800, fontSize: '0.92rem' }}
           >
-            {loading ? 'Authenticating...' : 'Sign In to Command Center'}
+            {loading ? 'Authenticating…' : 'Sign In to Command Center'}
           </button>
         </form>
 
         {/* Footer Link */}
-        <div style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
           Don't have an account yet?{' '}
           <Link to="/register" style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
             Create one free &rarr;

@@ -35,3 +35,16 @@ export const reportLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
+
+// Stricter rate limiter for test message dispatches
+export const testLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  message: {
+    success: false,
+    message: 'Test notification limit reached. Please wait 10 minutes before sending more test messages.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+

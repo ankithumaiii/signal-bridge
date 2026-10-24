@@ -22,5 +22,17 @@ export const config = {
   // Razorpay Payments Configuration
   razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || '',
-  razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || ''
+  razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || '',
+
+  // WhatsApp Cloud API Configuration (Meta Graph API)
+  whatsappEnabled: process.env.WHATSAPP_ENABLED === 'true',
+  whatsappAccessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
+  whatsappPhoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
+  whatsappApiVersion: process.env.WHATSAPP_API_VERSION || 'v22.0',
+  whatsappTemplateName: process.env.WHATSAPP_TEMPLATE_NAME || '',
+  whatsappTemplateLanguage: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US',
+  whatsappTestAllowlist: (process.env.WHATSAPP_TEST_ALLOWLIST || process.env.SMS_TEST_ALLOWLIST || '')
+    .split(',')
+    .map((s) => s.replace(/[^\d]/g, '').trim())
+    .filter(Boolean)
 };

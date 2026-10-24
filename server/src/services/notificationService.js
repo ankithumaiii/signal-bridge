@@ -1,10 +1,20 @@
 import { smsService } from './sms/smsService.js';
+import { whatsappService } from './whatsapp/whatsappService.js';
+import { config } from '../config/env.js';
 
 /**
- * Dispatch SOS Notifications to recipient contacts via configured SMS service
+ * Dispatch SOS Notifications to recipient contacts via configured SMS and WhatsApp services
  */
 export const dispatchSOSNotifications = async ({ incident, contacts, user }) => {
-  return smsService.dispatchSOSAlert({ incident, contacts, user });
+  const smsResults = await smsService.dispatchSOSAlert({ incident, contacts, user });
+
+  // Only dispatch WhatsApp notifications if WHATSAPP_ENABLED is true
+  if (config.whatsappEnabled) {
+    const waResults = await whatsappService.dispatchSOSAlert({ incident, contacts, user });
+    return [...smsResults, ...waResults];
+  }
+
+  return smsResults;
 };
 
 /**
